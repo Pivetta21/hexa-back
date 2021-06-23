@@ -1,0 +1,37 @@
+version: "3.8"
+
+services: 
+  postgres:
+    image: postgres:12
+    ports: 
+      - 35000:5432
+    environment: 
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  api:
+    build: 
+      dockerfile: Dockerfile
+      context: .
+      target: development
+    command: npm run start:debug
+    ports: 
+      - 8080:8080
+      - 9229:9229
+    environment: 
+      NODE_ENV: development
+      DATABASE_URL: postgres://user:password@postgres:5432/db
+      JWT_SECRET: super_secret_key21022000
+      PORT: 8080
+    volumes: 
+      - ./:/usr/src/app/
+      - nodemodules:/usr/src/app/node_modules
+    links: 
+      - postgres
+    depends_on: 
+      - postgres
+volumes:
+  nodemodules: {}
+  pgdata: {}
