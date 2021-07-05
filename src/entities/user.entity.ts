@@ -7,7 +7,7 @@ export class User {
   id: number;
 
   @ManyToOne(() => Permission, (permission) => permission.id)
-  permission: Permission;
+  permission: number;
 
   @Column('varchar', { length: 255, nullable: false })
   name: string;
