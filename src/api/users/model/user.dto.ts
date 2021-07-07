@@ -11,33 +11,29 @@ import {
 } from 'class-validator';
 
 export class UserDto {
-  @ApiProperty({ example: 1 })
   @IsInt()
+  @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 3 })
-  @IsInt()
-  permission: number;
-
-  @ApiProperty({ example: 'Foo Bar' })
   @IsNotEmpty()
   @Length(3, 255)
   @IsString()
+  @ApiProperty({ example: 'Foo Bar' })
   name: string;
 
-  @ApiProperty({ example: 'email@email.com' })
   @IsEmail()
+  @ApiProperty({ example: 'email@email.com' })
   email: string;
 
-  @ApiProperty({ example: 'https://www.google.com.br/imghp' })
   @IsUrl()
+  @ApiProperty({ example: 'https://www.google.com.br/imghp' })
   pictureUrl: string;
 
-  @ApiProperty({ example: '2021-07-05 00:26:06.399+00' })
   @IsDate()
+  @ApiProperty({ example: '2021-07-05 00:26:06.399+00' })
   signUpDate: string;
 
-  @ApiProperty({ example: false })
   @IsBoolean()
+  @ApiProperty({ example: false })
   isCreator: boolean;
 }

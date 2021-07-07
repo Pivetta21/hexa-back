@@ -83,7 +83,6 @@ describe('UsersService', () => {
       isCreator: false,
       name: 'Ant Rock',
       password: 'test001',
-      permission: 3,
       pictureUrl: 'https://www.google.com.br/imghp',
     };
 

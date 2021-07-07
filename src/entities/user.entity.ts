@@ -1,13 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Permission } from './permission.entity';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @ManyToOne(() => Permission, (permission) => permission.id)
-  permission: number;
 
   @Column('varchar', { length: 255, nullable: false })
   name: string;
@@ -18,7 +14,7 @@ export class User {
   @Column('varchar', { length: 255 })
   pictureUrl: string;
 
-  @Column('varchar', { length: 400, nullable: false })
+  @Column('varchar', { length: 400, nullable: false, select: false })
   password: string;
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
@@ -26,4 +22,9 @@ export class User {
 
   @Column('boolean', { default: () => 'FALSE' })
   isCreator: boolean;
+
+  @BeforeInsert()
+  emailToLowerCase() {
+    this.email = this.email.toLowerCase();
+  }
 }

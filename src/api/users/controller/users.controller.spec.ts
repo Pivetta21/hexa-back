@@ -72,7 +72,6 @@ describe('UsersController', () => {
       email: 'lucas@email.com',
       isCreator: false,
       password: 'test001',
-      permission: 3,
       pictureUrl: 'https://www.google.com.br/imghp',
     };
 
