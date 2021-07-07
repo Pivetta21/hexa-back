@@ -5,6 +5,7 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
+  IsString,
   IsUrl,
   Length,
 } from 'class-validator';
@@ -21,6 +22,7 @@ export class UserDto {
   @ApiProperty({ example: 'Foo Bar' })
   @IsNotEmpty()
   @Length(3, 255)
+  @IsString()
   name: string;
 
   @ApiProperty({ example: 'email@email.com' })

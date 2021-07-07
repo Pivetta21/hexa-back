@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../../../repositories/user.repository';
 import { UserDto } from './../model/user.dto';
 import { CreateUserDto } from '../model/create-user.dto';
@@ -26,11 +26,25 @@ export class UsersService {
     return this.userRepository.findOne(id);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto): Promise<any> {
-    return this.userRepository.update(id, updateUserDto);
+  update(id: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
+    const user = this.userRepository.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return this.userRepository.save({ user, ...updateUserDto });
   }
 
-  remove(id: number): Promise<any> {
-    return this.userRepository.delete(id);
+  remove(id: number): Promise<UserDto> {
+    const user = this.userRepository.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    this.userRepository.delete(id);
+
+    return user;
   }
 }
