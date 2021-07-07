@@ -6,7 +6,6 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UpdateUserDto } from 'src/api/users/model/update-user.dto';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -43,14 +42,8 @@ describe('UsersController (e2e)', () => {
     findOne: jest.fn().mockImplementation((id: string) => {
       return mockUsers.find((mockUser) => mockUser.id === Number(id));
     }),
-    update: jest.fn().mockImplementation((id: string, dto: UpdateUserDto) => {
-      const findUser = mockUsers.find((mockUser) => mockUser.id === Number(id));
-
-      return { findUser, ...dto };
-    }),
-    delete: jest.fn().mockImplementation((id: string) => {
-      mockUsers.filter((mockUser) => mockUser.id !== Number(id));
-    }),
+    update: jest.fn(),
+    delete: jest.fn(),
   };
 
   beforeAll(async () => {
@@ -111,24 +104,13 @@ describe('UsersController (e2e)', () => {
 
   it(`/PATCH/:id users`, () => {
     return request(app.getHttpServer())
-      .patch('/users/1')
+      .patch(`/users/1`)
       .send({ name: 'Test Foo PATCH' })
-      .expect(200)
-      .then((res) => {
-        expect(res.body.name).toEqual('Test Foo PATCH');
-      });
+      .expect(204);
   });
 
   it(`/DELETE/:id users`, () => {
-    const id = 2;
-    const user = mockUsers.find((mockUser) => mockUser.id === id);
-
-    return request(app.getHttpServer())
-      .delete('/users/2')
-      .expect(200)
-      .then((res) => {
-        expect(res.body).toEqual(user);
-      });
+    return request(app.getHttpServer()).delete('/users/2').expect(204);
   });
 
   afterAll(async () => {

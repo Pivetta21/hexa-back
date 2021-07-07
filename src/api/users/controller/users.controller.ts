@@ -8,11 +8,12 @@ import {
   Param,
   Delete,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 
 import {
   ApiCreatedResponse,
-  ApiNotFoundResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
@@ -47,19 +48,16 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @ApiNotFoundResponse()
-  @ApiOkResponse({ type: UserDto })
-  update(
-    @Param('id') id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<UserDto> {
+  @HttpCode(204)
+  @ApiNoContentResponse()
+  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  @ApiNotFoundResponse()
-  @ApiOkResponse({ type: UserDto })
-  remove(@Param('id') id: number): Promise<any> {
+  @HttpCode(204)
+  @ApiNoContentResponse()
+  remove(@Param('id') id: number) {
     return this.usersService.remove(id);
   }
 }
