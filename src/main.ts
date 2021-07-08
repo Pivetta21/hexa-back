@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle('Hexa API')
     .setDescription('API utilizada na versão web e mobile.')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, swaggerDocument);

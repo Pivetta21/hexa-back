@@ -12,15 +12,20 @@ import {
   HttpCode,
   ClassSerializerInterceptor,
   UseInterceptors,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 import { UsersService } from '../service/users.service';
 import { CreateUserDto } from '../model/create-user.dto';
@@ -31,19 +36,6 @@ import { UpdateUserDto } from '../model/update-user.dto';
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  @ApiCreatedResponse({ type: UserDto })
-  create(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
-    return this.usersService.create(createUserDto);
-  }
-
-  @Post('login')
-  @HttpCode(200)
-  @ApiOkResponse({ type: 'string' })
-  login(@Body() loginUserDto: LoginUserDto): Promise<string> {
-    return this.usersService.login(loginUserDto);
-  }
 
   @Get()
   @ApiQuery({ name: 'name', required: false })
@@ -58,17 +50,37 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @Post()
+  @ApiCreatedResponse({ type: UserDto })
+  create(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
+    return this.usersService.create(createUserDto);
+  }
+
+  @Post('login')
+  @HttpCode(200)
+  @ApiOkResponse()
+  login(@Body() loginUserDto: LoginUserDto): Promise<string> {
+    return this.usersService.login(loginUserDto);
+  }
+
   @Patch(':id')
-  @HttpCode(204)
-  @ApiNoContentResponse()
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: UserDto })
+  update(
+    @Req() request,
+    @Param('id') id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserDto> {
+    return this.usersService.update(id, request.user, updateUserDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiNoContentResponse()
-  remove(@Param('id') id: number) {
-    return this.usersService.remove(id);
+  remove(@Req() request, @Param('id') id: number): Promise<any> {
+    return this.usersService.remove(id, request.user);
   }
 }
