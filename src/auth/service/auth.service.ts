@@ -1,4 +1,4 @@
-import { UserDto } from './../../users/model/user.dto';
+import { UserDto } from '../../api/users/model/user.dto';
 const bcrypt = require('bcrypt');
 
 import { Injectable } from '@nestjs/common';
