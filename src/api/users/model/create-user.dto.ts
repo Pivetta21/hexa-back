@@ -1,13 +1,13 @@
-import { OmitType, ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Length } from 'class-validator';
 import { UserDto } from './user.dto';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { IsNotEmpty, Length } from 'class-validator';
 
-export class CreateUserDto extends OmitType(UserDto, [
-  'id',
-  'signUpDate',
+export class CreateUserDto extends PickType(UserDto, [
+  'name',
+  'email',
 ] as const) {
-  @ApiProperty({ example: 'test001' })
   @IsNotEmpty()
   @Length(4, 400)
+  @ApiProperty({ example: 'test001' })
   password: string;
 }

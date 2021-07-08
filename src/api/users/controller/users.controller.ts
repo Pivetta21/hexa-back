@@ -1,3 +1,4 @@
+import { LoginUserDto } from './../model/login-user.dto';
 import { UserDto } from './../model/user.dto';
 import {
   Controller,
@@ -9,6 +10,8 @@ import {
   Delete,
   Query,
   HttpCode,
+  ClassSerializerInterceptor,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import {
@@ -25,6 +28,7 @@ import { UpdateUserDto } from '../model/update-user.dto';
 
 @ApiTags('users')
 @Controller('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -32,6 +36,13 @@ export class UsersController {
   @ApiCreatedResponse({ type: UserDto })
   create(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('login')
+  @HttpCode(200)
+  @ApiOkResponse({ type: 'string' })
+  login(@Body() loginUserDto: LoginUserDto): Promise<string> {
+    return this.usersService.login(loginUserDto);
   }
 
   @Get()

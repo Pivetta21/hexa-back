@@ -6,6 +6,7 @@ import { User } from '../../../entities/user.entity';
 
 import { UsersService } from './users.service';
 import { UpdateUserDto } from '../model/update-user.dto';
+import { AuthService } from '../../auth/service/auth.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -62,13 +63,21 @@ describe('UsersService', () => {
       ),
   };
 
+  const mockAuthService = {
+    hashPassword: jest.fn().mockImplementation(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        AuthService,
         UsersService,
         { provide: getRepositoryToken(User), useValue: mockUsersRepository },
       ],
-    }).compile();
+    })
+      .overrideProvider(AuthService)
+      .useValue(mockAuthService)
+      .compile();
 
     service = module.get<UsersService>(UsersService);
   });
@@ -79,11 +88,9 @@ describe('UsersService', () => {
 
   it('should create a new user and return the record', async () => {
     const dto: CreateUserDto = {
+      name: 'Lucas Test',
       email: 'email452@email.com',
-      isCreator: false,
-      name: 'Ant Rock',
       password: 'test001',
-      pictureUrl: 'https://www.google.com.br/imghp',
     };
 
     expect(await service.create(dto)).toEqual({

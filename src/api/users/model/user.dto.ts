@@ -15,13 +15,15 @@ export class UserDto {
   @ApiProperty({ example: 1 })
   id: number;
 
+  @IsString()
   @IsNotEmpty()
   @Length(3, 255)
-  @IsString()
   @ApiProperty({ example: 'Foo Bar' })
   name: string;
 
   @IsEmail()
+  @IsNotEmpty()
+  @Length(10, 100)
   @ApiProperty({ example: 'email@email.com' })
   email: string;
 

@@ -70,9 +70,7 @@ describe('UsersController', () => {
     const dto: CreateUserDto = {
       name: 'Lucas',
       email: 'lucas@email.com',
-      isCreator: false,
       password: 'test001',
-      pictureUrl: 'https://www.google.com.br/imghp',
     };
 
     expect(controller.create(dto)).toEqual({

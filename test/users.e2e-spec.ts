@@ -62,11 +62,8 @@ describe('UsersController (e2e)', () => {
 
   it(`/POST user`, () => {
     const mockNewUser = {
-      permission: 3,
       name: 'Mock Foo',
       email: 'mock@email.com.br',
-      pictureUrl: 'https://www.google.com.br/imghp',
-      isCreator: false,
       password: 'test001',
     };
 
@@ -76,7 +73,11 @@ describe('UsersController (e2e)', () => {
       .expect('Content-Type', /json/)
       .expect(201)
       .then((res) => {
-        expect(res.body).toEqual({ id: expect.any(Number), ...mockNewUser });
+        expect(res.body).toEqual({
+          id: expect.any(Number),
+          name: mockNewUser.name,
+          email: mockNewUser.email,
+        });
       });
   });
 

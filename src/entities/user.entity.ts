@@ -1,4 +1,5 @@
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -11,10 +12,11 @@ export class User {
   @Column('varchar', { length: 255, nullable: false, unique: true })
   email: string;
 
-  @Column('varchar', { length: 255 })
+  @Column('varchar', { length: 255, nullable: true })
   pictureUrl: string;
 
-  @Column('varchar', { length: 400, nullable: false, select: false })
+  @Exclude()
+  @Column('varchar', { length: 400, nullable: false })
   password: string;
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
