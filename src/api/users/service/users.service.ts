@@ -1,9 +1,5 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { AuthenticatedUserDto } from './../model/authenticated-user.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
 import { User } from './../../../entities/user.entity';
 import { UserRepository } from '../../../repositories/user.repository';
@@ -44,7 +40,7 @@ export class UsersService {
     return this.convertUserToUserDto(newUser);
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<string> {
+  async login(loginUserDto: LoginUserDto): Promise<AuthenticatedUserDto> {
     const user = await this.findUserByEmail(loginUserDto.email);
 
     const passwordsMatches = await this.authService.comparePasswords(
@@ -60,19 +56,19 @@ export class UsersService {
     }
 
     const userDto = this.convertUserToUserDto(user);
-    const jwt = this.authService.generateJwt(userDto);
+    const jwt = await this.authService.generateJwt(userDto);
 
-    return jwt;
+    return { user: userDto, token: jwt };
   }
 
   async update(
     id: number,
-    authenticatedUser: UserDto,
+    requestUser: UserDto,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
     const { password, email } = updateUserDto;
 
-    await this.verifyIfUserHasAuthority(authenticatedUser, id);
+    await this.authService.verifyIfUserHasAuthority(requestUser, id);
 
     const user = await this.findUserById(id);
 
@@ -91,8 +87,8 @@ export class UsersService {
     return this.convertUserToUserDto(newUser);
   }
 
-  async remove(id: number, authenticatedUser: UserDto): Promise<any> {
-    this.verifyIfUserHasAuthority(authenticatedUser, id);
+  async remove(id: number, requestUser: UserDto): Promise<any> {
+    this.authService.verifyIfUserHasAuthority(requestUser, id);
 
     const result: DeleteResult = await this.userRepository.delete(id);
 
@@ -104,12 +100,6 @@ export class UsersService {
     }
 
     return result;
-  }
-
-  private verifyIfUserHasAuthority(user: UserDto, id: number): void {
-    if (user.id != id) {
-      throw new UnauthorizedException();
-    }
   }
 
   private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {

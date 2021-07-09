@@ -1,3 +1,4 @@
+import { AuthenticatedUserDto } from './../model/authenticated-user.dto';
 import { LoginUserDto } from './../model/login-user.dto';
 import { UserDto } from './../model/user.dto';
 import {
@@ -58,8 +59,8 @@ export class UsersController {
 
   @Post('login')
   @HttpCode(200)
-  @ApiOkResponse()
-  login(@Body() loginUserDto: LoginUserDto): Promise<string> {
+  @ApiOkResponse({ type: AuthenticatedUserDto })
+  login(@Body() loginUserDto: LoginUserDto): Promise<AuthenticatedUserDto> {
     return this.usersService.login(loginUserDto);
   }
 
