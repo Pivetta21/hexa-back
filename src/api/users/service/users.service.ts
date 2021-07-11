@@ -103,7 +103,7 @@ export class UsersService {
   }
 
   private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {
-    const user = await this.findUserByEmail(email);
+    const user = await this.userRepository.findOne({ where: { email } });
 
     if (user) {
       throw new HttpException('E-mail already in use.', HttpStatus.CONFLICT);
