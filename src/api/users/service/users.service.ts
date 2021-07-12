@@ -50,7 +50,7 @@ export class UsersService {
 
     if (!passwordsMatches) {
       throw new HttpException(
-        'Login was not successful.',
+        'Não foi possível realizar login.',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -93,10 +93,7 @@ export class UsersService {
     const result: DeleteResult = await this.userRepository.delete(id);
 
     if (result.affected == 0) {
-      throw new HttpException(
-        'There is nothing to delete.',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
     }
 
     return result;
@@ -106,7 +103,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (user) {
-      throw new HttpException('E-mail already in use.', HttpStatus.CONFLICT);
+      throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
     }
   }
 
@@ -114,7 +111,7 @@ export class UsersService {
     const user = await this.userRepository.findOne(id);
 
     if (!user) {
-      throw new HttpException('User does not exists.', HttpStatus.NOT_FOUND);
+      throw new HttpException('Usuário não existe.', HttpStatus.NOT_FOUND);
     }
 
     return user;
@@ -124,7 +121,7 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
-      throw new HttpException('E-mail not found.', HttpStatus.NOT_FOUND);
+      throw new HttpException('E-mail não encontrado.', HttpStatus.NOT_FOUND);
     }
 
     return this.userRepository.findOne({ where: { email } });
