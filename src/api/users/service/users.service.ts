@@ -39,18 +39,6 @@ export class UsersService {
 
     const newUser = await this.userRepository.save(createUserDto);
 
-    const emailConfirmation = await this.mailService.createEmailConfirmation(
-      newUser,
-    );
-
-    if (emailConfirmation) {
-      this.mailService.sendEmail({
-        to: newUser.email,
-        subject: `${newUser.name}, confirmação de e-mail.`,
-        text: `Seu código é ${emailConfirmation.code} e irá expirar em 24 horas!`,
-      });
-    }
-
     return this.convertUserToUserDto(newUser);
   }
 
@@ -75,8 +63,30 @@ export class UsersService {
     return { user: userDto, token: jwt };
   }
 
-  async confirmEmail(requestUser: UserDto, code: number): Promise<void> {
-    const { id } = requestUser;
+  async getEmailConfirmation(email: string) {
+    const user = await this.findUserByEmail(email);
+    const userDto = this.convertUserToUserDto(user);
+
+    const emailConfirmation = await this.mailService.createEmailConfirmation(
+      userDto,
+    );
+
+    if (emailConfirmation) {
+      this.mailService.sendEmail({
+        to: userDto.email,
+        subject: `${userDto.name}, confirmação de e-mail.`,
+        text: `Seu código é ${emailConfirmation.code} e irá expirar em 24 horas!`,
+      });
+    } else {
+      throw new HttpException(
+        'Não foi possível gerar seu código.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async confirmEmail(userDto: UserDto, code: number): Promise<void> {
+    const { id } = userDto;
 
     const user = await this.findUserById(id);
 
@@ -136,14 +146,6 @@ export class UsersService {
     return result;
   }
 
-  private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { email } });
-
-    if (user) {
-      throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
-    }
-  }
-
   private async findUserById(id: number): Promise<User> {
     const user = await this.userRepository.findOne(id);
 
@@ -162,6 +164,14 @@ export class UsersService {
     }
 
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (user) {
+      throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
+    }
   }
 
   private convertUserToUserDto(user: User | any): UserDto {

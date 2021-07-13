@@ -20,16 +20,16 @@ import {
 
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
+  PickType,
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
-
-import { UpdatedEmailConfirmationDto } from '../../../mail/model/update-email-confirmation.dto';
 
 import { UsersService } from '../service/users.service';
 import { CreateUserDto } from '../model/create-user.dto';
@@ -67,16 +67,23 @@ export class UsersController {
     return this.usersService.login(loginUserDto);
   }
 
+  @Post('email-confirmation')
+  @HttpCode(204)
+  @ApiBody({ type: PickType(UpdateUserDto, ['email'] as const) })
+  @ApiNoContentResponse()
+  getEmailConfirmation(@Body() user: UpdateUserDto): Promise<void> {
+    return this.usersService.getEmailConfirmation(user.email);
+  }
+
   @Post('confirm-email')
   @HttpCode(204)
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiQuery({ name: 'code', required: true })
   @ApiNoContentResponse()
   confirmEmail(
-    @Req() request: any,
-    @Body() emailConfirmation: UpdatedEmailConfirmationDto,
+    @Body() userDto: UserDto,
+    @Query('code') code: number,
   ): Promise<void> {
-    return this.usersService.confirmEmail(request.user, emailConfirmation.code);
+    return this.usersService.confirmEmail(userDto, code);
   }
 
   @Patch(':id')

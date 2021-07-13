@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
-  IsDate,
   IsEmail,
   IsInt,
   IsNotEmpty,
@@ -31,7 +30,7 @@ export class UserDto {
   @ApiProperty({ example: 'https://www.google.com.br/imghp' })
   pictureUrl: string;
 
-  @IsDate()
+  @IsString()
   @ApiProperty({ example: '2021-07-05 00:26:06.399+00' })
   signUpDate: string;
 
