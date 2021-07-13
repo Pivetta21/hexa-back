@@ -1,3 +1,4 @@
+import { MailService } from './../../../mail/service/mail.service';
 import { AuthenticatedUserDto } from './../model/authenticated-user.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
@@ -13,7 +14,8 @@ import { LoginUserDto } from '../model/login-user.dto';
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
-    private authService: AuthService,
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
   ) {}
 
   findAll(name?: string): Promise<UserDto[]> {
@@ -36,6 +38,18 @@ export class UsersService {
     );
 
     const newUser = await this.userRepository.save(createUserDto);
+
+    const emailConfirmation = await this.mailService.createEmailConfirmation(
+      newUser,
+    );
+
+    if (emailConfirmation) {
+      this.mailService.sendEmail({
+        to: newUser.email,
+        subject: `${newUser.name}, confirmação de e-mail.`,
+        text: `Seu código é ${emailConfirmation.code} e irá expirar em 24 horas!`,
+      });
+    }
 
     return this.convertUserToUserDto(newUser);
   }
@@ -61,12 +75,35 @@ export class UsersService {
     return { user: userDto, token: jwt };
   }
 
+  async confirmEmail(requestUser: UserDto, code: number): Promise<void> {
+    const { id } = requestUser;
+
+    const user = await this.findUserById(id);
+
+    const isEmailValidated = await this.mailService.verifyEmailConfirmation(
+      code,
+      user,
+    );
+
+    if (isEmailValidated) {
+      await this.userRepository.update(user.id, { isEmailValidated: true });
+
+      this.mailService.removeEmailConfirmation(user.id);
+
+      this.mailService.sendEmail({
+        to: user.email,
+        subject: 'E-mail confirmado com sucesso!',
+        text: 'Muito obrigado por confirmar seu e-mail. Seja bem-vindo a Hexa!',
+      });
+    }
+  }
+
   async update(
     id: number,
     requestUser: UserDto,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
-    const { password, email } = updateUserDto;
+    const { email, password } = updateUserDto;
 
     await this.authService.verifyIfUserHasAuthority(requestUser, id);
 
@@ -135,6 +172,7 @@ export class UsersService {
       name: user.name,
       pictureUrl: user.pictureUrl,
       signUpDate: user.signUpDate,
+      isEmailValidated: user.isEmailValidated,
     } as UserDto;
   }
 }

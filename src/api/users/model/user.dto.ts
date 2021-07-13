@@ -38,4 +38,8 @@ export class UserDto {
   @IsBoolean()
   @ApiProperty({ example: false })
   isCreator: boolean;
+
+  @IsBoolean()
+  @ApiProperty({ example: false })
+  isEmailValidated: boolean;
 }
