@@ -23,7 +23,7 @@ export class MailService {
     });
   }
 
-  public sendEmail(mailOptionsDto: MailOptionsDto) {
+  sendEmail(mailOptionsDto: MailOptionsDto) {
     if (process.env.NODE_ENV == 'production') {
       const { to, subject, text } = mailOptionsDto;
 
@@ -38,11 +38,11 @@ export class MailService {
     }
   }
 
-  public async removeEmailConfirmation(userId: number): Promise<any> {
+  removeEmailConfirmation(userId: number): Promise<any> {
     return this.emailConfirmationRepository.delete({ user: userId });
   }
 
-  public async createEmailConfirmation(
+  async createEmailConfirmation(
     userDto: UserDto,
   ): Promise<EmailConfirmationDto> {
     this.checkIfEmailConfirmationIsValidated(userDto);
@@ -70,7 +70,7 @@ export class MailService {
     }
   }
 
-  public async verifyEmailConfirmation(
+  async verifyEmailConfirmation(
     code: number,
     userDto: UserDto,
   ): Promise<boolean> {
@@ -81,10 +81,14 @@ export class MailService {
     });
 
     if (this.isEmailConfirmationExpired(emailConfirmation.expirationDate)) {
-      return false;
+      throw new HttpException('Seu código expirou!', HttpStatus.GONE);
     }
 
-    return emailConfirmation.code == code;
+    if (emailConfirmation.code != code) {
+      throw new HttpException('Código inválido.', HttpStatus.BAD_REQUEST);
+    }
+
+    return true;
   }
 
   private generateEmailConfirmation(userId: number): EmailConfirmationDto {

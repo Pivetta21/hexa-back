@@ -22,7 +22,6 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
@@ -72,7 +71,7 @@ export class UsersController {
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiNotFoundResponse()
+  @ApiNoContentResponse()
   confirmEmail(
     @Req() request: any,
     @Body() emailConfirmation: UpdatedEmailConfirmationDto,
