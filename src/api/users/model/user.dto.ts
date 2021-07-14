@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUrl,
   Length,
@@ -26,6 +27,7 @@ export class UserDto {
   @ApiProperty({ example: 'email@email.com' })
   email: string;
 
+  @IsOptional()
   @IsUrl()
   @ApiProperty({ example: 'https://www.google.com.br/imghp' })
   pictureUrl: string;
