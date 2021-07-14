@@ -1,3 +1,4 @@
+import { MailService } from './../../../mail/service/mail.service';
 import { AuthenticatedUserDto } from './../model/authenticated-user.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
@@ -13,7 +14,8 @@ import { LoginUserDto } from '../model/login-user.dto';
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
-    private authService: AuthService,
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
   ) {}
 
   findAll(name?: string): Promise<UserDto[]> {
@@ -61,12 +63,57 @@ export class UsersService {
     return { user: userDto, token: jwt };
   }
 
+  async getEmailConfirmation(email: string) {
+    const user = await this.findUserByEmail(email);
+    const userDto = this.convertUserToUserDto(user);
+
+    const emailConfirmation = await this.mailService.createEmailConfirmation(
+      userDto,
+    );
+
+    if (emailConfirmation) {
+      this.mailService.sendEmail({
+        to: userDto.email,
+        subject: `${userDto.name}, confirmação de e-mail.`,
+        text: `Seu código é ${emailConfirmation.code} e irá expirar em 24 horas!`,
+      });
+    } else {
+      throw new HttpException(
+        'Não foi possível gerar seu código.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async confirmEmail(userDto: UserDto, code: number): Promise<void> {
+    const { id } = userDto;
+
+    const user = await this.findUserById(id);
+
+    const isEmailValidated = await this.mailService.verifyEmailConfirmation(
+      code,
+      user,
+    );
+
+    if (isEmailValidated) {
+      await this.userRepository.update(user.id, { isEmailValidated: true });
+
+      this.mailService.removeEmailConfirmation(user.id);
+
+      this.mailService.sendEmail({
+        to: user.email,
+        subject: 'E-mail confirmado com sucesso!',
+        text: 'Muito obrigado por confirmar seu e-mail. Seja bem-vindo a Hexa!',
+      });
+    }
+  }
+
   async update(
     id: number,
     requestUser: UserDto,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
-    const { password, email } = updateUserDto;
+    const { email, password } = updateUserDto;
 
     await this.authService.verifyIfUserHasAuthority(requestUser, id);
 
@@ -99,14 +146,6 @@ export class UsersService {
     return result;
   }
 
-  private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { email } });
-
-    if (user) {
-      throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
-    }
-  }
-
   private async findUserById(id: number): Promise<User> {
     const user = await this.userRepository.findOne(id);
 
@@ -127,6 +166,14 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email } });
   }
 
+  private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (user) {
+      throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
+    }
+  }
+
   private convertUserToUserDto(user: User | any): UserDto {
     return {
       id: user.id,
@@ -135,6 +182,7 @@ export class UsersService {
       name: user.name,
       pictureUrl: user.pictureUrl,
       signUpDate: user.signUpDate,
+      isEmailValidated: user.isEmailValidated,
     } as UserDto;
   }
 }

@@ -8,14 +8,16 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Hexa API')
-    .setDescription('API utilizada na versão web e mobile.')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, swaggerDocument);
+  if (process.env.NODE_ENV == 'development') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Hexa API')
+      .setDescription('API utilizada na versão web e mobile.')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api', app, swaggerDocument);
+  }
 
   app.enableCors({ origin: process.env.CORS_ORIGIN });
 

@@ -1,6 +1,7 @@
 import { AuthenticatedUserDto } from './../model/authenticated-user.dto';
 import { LoginUserDto } from './../model/login-user.dto';
 import { UserDto } from './../model/user.dto';
+
 import {
   Controller,
   Get,
@@ -19,11 +20,13 @@ import {
 
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
+  PickType,
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
@@ -64,12 +67,31 @@ export class UsersController {
     return this.usersService.login(loginUserDto);
   }
 
+  @Post('email-confirmation')
+  @HttpCode(204)
+  @ApiBody({ type: PickType(UpdateUserDto, ['email'] as const) })
+  @ApiNoContentResponse()
+  getEmailConfirmation(@Body() user: UpdateUserDto): Promise<void> {
+    return this.usersService.getEmailConfirmation(user.email);
+  }
+
+  @Post('confirm-email')
+  @HttpCode(204)
+  @ApiQuery({ name: 'code', required: true })
+  @ApiNoContentResponse()
+  confirmEmail(
+    @Body() userDto: UserDto,
+    @Query('code') code: number,
+  ): Promise<void> {
+    return this.usersService.confirmEmail(userDto, code);
+  }
+
   @Patch(':id')
-  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: UserDto })
   update(
-    @Req() request,
+    @Req() request: any,
     @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
@@ -81,7 +103,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiNoContentResponse()
-  remove(@Req() request, @Param('id') id: number): Promise<any> {
+  remove(@Req() request: any, @Param('id') id: number): Promise<any> {
     return this.usersService.remove(id, request.user);
   }
 }

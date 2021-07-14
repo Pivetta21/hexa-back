@@ -25,6 +25,9 @@ export class User {
   @Column('boolean', { default: () => 'FALSE' })
   isCreator: boolean;
 
+  @Column('boolean', { default: () => 'FALSE' })
+  isEmailValidated: boolean;
+
   @BeforeInsert()
   emailToLowerCase() {
     this.email = this.email.toLowerCase();

@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
-  IsDate,
   IsEmail,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUrl,
   Length,
@@ -27,15 +27,20 @@ export class UserDto {
   @ApiProperty({ example: 'email@email.com' })
   email: string;
 
+  @IsOptional()
   @IsUrl()
   @ApiProperty({ example: 'https://www.google.com.br/imghp' })
   pictureUrl: string;
 
-  @IsDate()
+  @IsString()
   @ApiProperty({ example: '2021-07-05 00:26:06.399+00' })
   signUpDate: string;
 
   @IsBoolean()
   @ApiProperty({ example: false })
   isCreator: boolean;
+
+  @IsBoolean()
+  @ApiProperty({ example: false })
+  isEmailValidated: boolean;
 }
