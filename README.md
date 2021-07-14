@@ -1,17 +1,41 @@
 # Hexa Back-end
 
-## Docker 
+## Utilizando o [Docker](https://www.docker.com/get-started)   
   \
-  Para iniciar todos os serviços, criar a imagem do Docker, criar os volumes e linkar os serviços. Rode:
-
-    docker-compose up --build
-  
-  \
-  Se precisar remover todos os serviços criados anteriormente pelo Dockerfile. Rode:
-  
-    docker-compose down
-  
-  \
-  Para iniciar a API. Rode:
+  Para iniciar a API e o banco de dados, rode:
 
     docker-compose up
+
+  \
+  Para listar os containers ativos, use:
+    
+    docker ps
+
+  \
+  Para executar comandos dentro de algum container, use:
+
+    docker exec -it <container_id_or_name> bash
+
+## Migrations com [TypeORM](https://typeorm.io/#/)
+
+  \
+  Para rodar as migrations utilize dentro do container da API o seguinte comando:
+
+    npm run migration:run
+
+  \
+  Para gerar uma migration utilize dentro do container da API o seguinte comando:
+
+    npm run migration:generate -n <migration_name>
+
+## Outros
+
+  \
+  Para acessar o postgres do container na sua máquina local, utilize  Beekeeper Studio ou DBeaver com a seguinte url:
+
+    postgres://user:password@localhost:35000/db
+
+  \
+  Para acessar o OpenAPI (Swagger) na sua máquina local acesse:
+
+    localhost:8080/api

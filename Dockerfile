@@ -10,6 +10,8 @@ RUN npm install
 
 COPY . .
 
+RUN npm run build
+
 # PRODUCTION
 
 FROM node:16 AS production
@@ -21,7 +23,6 @@ WORKDIR /usr/src/app
 
 COPY --from=development /usr/src/app .
 
-RUN npm run build
-
 EXPOSE 8080
+
 CMD ["npm", "start"]
