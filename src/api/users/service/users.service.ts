@@ -121,6 +121,7 @@ export class UsersService {
 
     if (email) {
       await this.verifyIfEmailIsBeingUsed(email);
+      updateUserDto.isEmailValidated = false;
     }
 
     if (password) {
