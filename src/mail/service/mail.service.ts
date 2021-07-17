@@ -102,11 +102,23 @@ export class MailService {
     const date = new Date(sqlDate);
     const today = new Date();
 
-    const year = date.getFullYear() - today.getFullYear() == 0 ? true : false;
-    const month = date.getMonth() - today.getMonth() == 0 ? true : false;
+    const userDate = {
+      day: date.getUTCDate(),
+      month: date.getUTCMonth() + 1,
+      year: date.getFullYear(),
+    };
 
-    const days = date.getDay() - today.getDay();
-    const day = days >= 0 && days <= 1;
+    const todayDate = {
+      day: today.getUTCDate(),
+      month: today.getUTCMonth() + 1,
+      year: today.getFullYear(),
+    };
+
+    const daysDiff = userDate.day - todayDate.day;
+
+    const year = userDate.year - todayDate.year == 0;
+    const month = userDate.month - todayDate.month == 0;
+    const day = daysDiff >= 0 && daysDiff <= 1;
 
     return !(year && month && day);
   }
