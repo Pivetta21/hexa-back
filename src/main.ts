@@ -3,8 +3,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
-import fs = require('fs');
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -22,10 +20,6 @@ async function bootstrap() {
   }
 
   app.enableCors({ origin: process.env.CORS_ORIGIN });
-
-  if (!fs.existsSync(process.env.STORAGE_DIR)) {
-    fs.mkdirSync(process.env.STORAGE_DIR);
-  }
 
   await app.listen(8080);
 }

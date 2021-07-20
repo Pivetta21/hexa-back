@@ -1,3 +1,5 @@
+import { FileDto } from './../model/file.dto';
+
 import { StorageService } from './../service/storage.service';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import {
@@ -6,6 +8,7 @@ import {
   Get,
   Param,
   Post,
+  Req,
   Res,
   UploadedFile,
   UseGuards,
@@ -20,45 +23,36 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import path = require('path');
-import fs = require('fs');
-
 @ApiTags('storage')
 @Controller('storage')
 export class StorageController {
-  constructor() {
-    if (!fs.existsSync(StorageService.usersStorageDir)) {
-      fs.mkdirSync(StorageService.usersStorageDir);
-    }
-  }
+  constructor(private readonly storageService: StorageService) {}
 
-  @Post('users')
-  @UseInterceptors(FileInterceptor('file', StorageService.getUsersStorage()))
+  @Post('images')
+  @UseInterceptors(
+    FileInterceptor(
+      'file',
+      StorageService.getDiskStorage(process.env.STORAGE_IMAGES_DIR),
+    ),
+  )
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiCreatedResponse()
-  uploadFile(@UploadedFile() file: Express.Multer.File): Promise<any> {
+  @ApiCreatedResponse({ type: FileDto })
+  uploadImage(@UploadedFile() file: Express.Multer.File): Promise<FileDto> {
     return Promise.resolve(file);
   }
 
-  @Get('users/:filename')
+  @Get('images/:filename')
   @ApiOkResponse()
-  findUsersImage(@Res() res, @Param('filename') filename): Promise<any> {
-    return res.sendFile(
-      path.join(process.cwd(), `${StorageService.usersStorageDir}`, filename),
-    );
+  findImage(@Res() res, @Param('filename') filename): Promise<any> {
+    return res.sendFile(this.storageService.getImagePath(filename));
   }
 
-  @Delete('users/:filename')
+  @Delete('images/:filename')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse()
-  delete(@Param('filename') filename) {
-    fs.unlink(
-      path.join(process.cwd(), `${StorageService.usersStorageDir}`, filename),
-      (err) => {
-        console.log(err);
-      },
-    );
+  deleteImage(@Req() req: any, @Param('filename') filename) {
+    return this.storageService.deleteImage(req.user, filename);
   }
 }
