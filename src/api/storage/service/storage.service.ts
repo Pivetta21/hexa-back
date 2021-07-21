@@ -5,9 +5,12 @@ import fs = require('fs');
 import path = require('path');
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+import { UserRepository } from 'src/repositories/user.repository';
 
 @Injectable()
 export class StorageService {
+  constructor(private readonly userRepository: UserRepository) {}
+
   static getDiskStorage(storageDir: string) {
     return {
       storage: diskStorage({
@@ -24,15 +27,15 @@ export class StorageService {
     };
   }
 
-  getImagePath(filename: string): string {
-    return path.join(process.cwd(), process.env.STORAGE_IMAGES_DIR, filename);
+  static getFilePath(storageDir: string, filename: string): string {
+    return path.join(process.cwd(), storageDir, filename);
   }
 
-  deleteImage(user: UserDto, filename: string): void {
+  async deleteProfileImage(reqUser: UserDto, filename: string): Promise<void> {
     const cwd = process.cwd();
+    const user = await this.userRepository.findOne(reqUser.id);
 
     const userPath = path.join(cwd, user.pictureUrl);
-
     const requestPath = path.join(
       cwd,
       process.env.STORAGE_IMAGES_DIR,

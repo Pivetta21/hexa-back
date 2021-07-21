@@ -45,14 +45,16 @@ export class StorageController {
   @Get('images/:filename')
   @ApiOkResponse()
   findImage(@Res() res, @Param('filename') filename): Promise<any> {
-    return res.sendFile(this.storageService.getImagePath(filename));
+    return res.sendFile(
+      StorageService.getFilePath(process.env.STORAGE_IMAGES_DIR, filename),
+    );
   }
 
-  @Delete('images/:filename')
+  @Delete('images/profile/:filename')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse()
-  deleteImage(@Req() req: any, @Param('filename') filename) {
-    return this.storageService.deleteImage(req.user, filename);
+  deleteProfileImage(@Req() req: any, @Param('filename') filename: string) {
+    return this.storageService.deleteProfileImage(req.user, filename);
   }
 }
