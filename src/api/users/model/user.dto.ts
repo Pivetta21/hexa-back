@@ -6,7 +6,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUrl,
   Length,
 } from 'class-validator';
 
@@ -28,8 +27,8 @@ export class UserDto {
   email: string;
 
   @IsOptional()
-  @IsUrl()
-  @ApiProperty({ example: 'https://www.google.com.br/imghp' })
+  @IsString()
+  @ApiProperty({ example: 'storage/images/filename.jpg' })
   pictureUrl: string;
 
   @IsString()

@@ -22,6 +22,8 @@ services:
       - 9229:9229
     environment: 
       NODE_ENV: development
+      STORAGE_IMAGES_DIR: ./storage/images
+      STORAGE_VIDEOS_DIR: ./storage/videos
       CORS_ORIGIN: http://localhost:3000
       DATABASE_URL: postgres://user:password@postgres:5432/db
       JWT_SECRET: super_secret_key21022000
@@ -29,6 +31,7 @@ services:
       PORT: 8080
     volumes: 
       - ./:/usr/src/app/
+      - ./storage:/usr/src/app/storage
       - nodemodules:/usr/src/app/node_modules
     links: 
       - postgres
