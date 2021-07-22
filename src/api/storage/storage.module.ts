@@ -6,11 +6,16 @@ import { StorageService } from './service/storage.service';
 import { StorageController } from './controller/storage.controller';
 
 import fs = require('fs');
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from 'src/repositories/user.repository';
+import { ChannelRepository } from 'src/repositories/channel.repository';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([UserRepository])],
+  imports: [
+    TypeOrmModule.forFeature([UserRepository, ChannelRepository]),
+    AuthModule,
+  ],
   controllers: [StorageController],
   providers: [StorageService],
 })

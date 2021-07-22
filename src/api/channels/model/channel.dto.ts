@@ -30,7 +30,7 @@ export class ChannelDto {
   @IsOptional()
   @IsString()
   @ApiProperty({ example: 'storage/images/filename.jpg' })
-  banner_url: string;
+  banner_url?: string;
 
   @IsString()
   @ApiProperty({ example: '2021-07-05 00:26:06.399+00' })

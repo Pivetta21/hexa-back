@@ -57,4 +57,12 @@ export class StorageController {
   deleteProfileImage(@Req() req: any, @Param('filename') filename: string) {
     return this.storageService.deleteProfileImage(req.user, filename);
   }
+
+  @Delete('images/channel/:filename')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse()
+  deleteChannelImage(@Req() req: any, @Param('filename') filename: string) {
+    return this.storageService.deleteChannelImage(req.user, filename);
+  }
 }
