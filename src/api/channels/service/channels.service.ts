@@ -35,14 +35,7 @@ export class ChannelsService {
       throw new HttpException('Problemas com sua conta!', HttpStatus.NOT_FOUND);
     }
 
-    const channel = await this.channelRepository.save(createChannelDto);
-
-    if (channel) {
-      user.isCreator = true;
-      this.userRepository.update(user.id, user);
-    }
-
-    return channel;
+    return await this.channelRepository.save(createChannelDto);
   }
 
   async update(

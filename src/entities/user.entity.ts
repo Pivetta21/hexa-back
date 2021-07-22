@@ -23,9 +23,6 @@ export class User {
   signUpDate: string;
 
   @Column('boolean', { default: () => 'FALSE' })
-  isCreator: boolean;
-
-  @Column('boolean', { default: () => 'FALSE' })
   isEmailValidated: boolean;
 
   @BeforeInsert()
