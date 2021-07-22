@@ -1,0 +1,46 @@
+import { UserRepository } from '../../../repositories/user.repository';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
+import { ChannelRepository } from '../../../repositories/channel.repository';
+
+import { ChannelDto } from '../model/channel.dto';
+import { CreateChannelDto } from '../model/create-channel.dto';
+
+@Injectable()
+export class ChannelsService {
+  constructor(
+    private readonly channelRepository: ChannelRepository,
+    private readonly userRepository: UserRepository,
+  ) {}
+
+  find(userId?: number): Promise<ChannelDto[] | ChannelDto> {
+    if (userId) {
+      return this.channelRepository.findOne({ where: { user: userId } });
+    }
+
+    return this.channelRepository.find({ order: { id: 'ASC' } });
+  }
+
+  findOne(id: number): Promise<ChannelDto> {
+    return this.channelRepository.findOne({ where: { id: id } });
+  }
+
+  async create(createChannelDto: CreateChannelDto): Promise<ChannelDto> {
+    const user = await this.userRepository.findOne({
+      where: { id: createChannelDto.user },
+    });
+
+    if (!user) {
+      throw new HttpException('Problemas com sua conta!', HttpStatus.NOT_FOUND);
+    }
+
+    const channel = await this.channelRepository.save(createChannelDto);
+
+    if (channel) {
+      user.isCreator = true;
+      this.userRepository.update(user.id, user);
+    }
+
+    return channel;
+  }
+}
