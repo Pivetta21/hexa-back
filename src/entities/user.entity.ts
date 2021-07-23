@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 
 @Entity()
@@ -16,7 +16,7 @@ export class User {
   pictureUrl: string;
 
   @Exclude()
-  @Column('varchar', { length: 400, nullable: false })
+  @Column('varchar', { length: 400, nullable: false, select: false })
   password: string;
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
@@ -24,9 +24,4 @@ export class User {
 
   @Column('boolean', { default: () => 'FALSE' })
   isEmailValidated: boolean;
-
-  @BeforeInsert()
-  emailToLowerCase() {
-    this.email = this.email.toLowerCase();
-  }
 }

@@ -37,13 +37,22 @@ export class UsersService {
       createUserDto.password,
     );
 
-    const newUser = await this.userRepository.save(createUserDto);
-
-    return this.convertUserToUserDto(newUser);
+    return await this.userRepository.save(createUserDto);
   }
 
   async login(loginUserDto: LoginUserDto): Promise<AuthenticatedUserDto> {
-    const user = await this.findUserByEmail(loginUserDto.email);
+    const user = await this.userRepository.findOne({
+      where: { email: loginUserDto.email },
+      select: [
+        'id',
+        'name',
+        'email',
+        'password',
+        'pictureUrl',
+        'signUpDate',
+        'isEmailValidated',
+      ],
+    });
 
     const passwordsMatches = await this.authService.comparePasswords(
       loginUserDto.password,
@@ -57,24 +66,22 @@ export class UsersService {
       );
     }
 
-    const userDto = this.convertUserToUserDto(user);
-    const jwt = await this.authService.generateJwt(userDto);
+    const jwt = await this.authService.generateJwt(user);
 
-    return { user: userDto, token: jwt };
+    return { user: user, token: jwt };
   }
 
   async getEmailConfirmation(email: string) {
     const user = await this.findUserByEmail(email);
-    const userDto = this.convertUserToUserDto(user);
 
     const emailConfirmation = await this.mailService.createEmailConfirmation(
-      userDto,
+      user,
     );
 
     if (emailConfirmation) {
       this.mailService.sendEmail({
-        to: userDto.email,
-        subject: `${userDto.name}, confirmação de e-mail.`,
+        to: user.email,
+        subject: `${user.name}, confirmação de e-mail.`,
         text: `Seu código é ${emailConfirmation.code} e irá expirar em 24 horas!`,
       });
     } else {
@@ -132,7 +139,7 @@ export class UsersService {
 
     const newUser = { ...user, ...updateUserDto };
 
-    return this.convertUserToUserDto(newUser);
+    return newUser;
   }
 
   async remove(id: number, requestUser: UserDto): Promise<any> {
@@ -164,7 +171,7 @@ export class UsersService {
       throw new HttpException('E-mail não encontrado.', HttpStatus.NOT_FOUND);
     }
 
-    return this.userRepository.findOne({ where: { email } });
+    return user;
   }
 
   private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {
@@ -173,17 +180,5 @@ export class UsersService {
     if (user) {
       throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
     }
-  }
-
-  private convertUserToUserDto(user: User | any): UserDto {
-    return {
-      id: user.id,
-      email: user.email,
-      isCreator: user.isCreator,
-      name: user.name,
-      pictureUrl: user.pictureUrl,
-      signUpDate: user.signUpDate,
-      isEmailValidated: user.isEmailValidated,
-    } as UserDto;
   }
 }

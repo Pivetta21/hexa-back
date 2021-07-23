@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import {
   IsOptional,
   IsString,
@@ -5,8 +7,8 @@ import {
   Length,
   IsInt,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { UserDto } from '../../users/model/user.dto';
+
+import { User } from './../../../entities/user.entity';
 
 export class ChannelDto {
   @IsInt()
@@ -14,7 +16,7 @@ export class ChannelDto {
   id: number;
 
   @ApiProperty()
-  user: UserDto;
+  user: User;
 
   @IsString()
   @IsNotEmpty()
