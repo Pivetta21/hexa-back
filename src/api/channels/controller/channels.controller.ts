@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -12,17 +14,18 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from './../../../auth/guards/jwt-auth.guard';
-import { ChannelsService } from './../service/channels.service';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { ChannelsService } from '../service/channels.service';
 
 import { ChannelDto } from '../model/channel.dto';
-import { CreateChannelDto } from './../model/create-channel.dto';
-import { UpdateChannelDto } from './../model/update-channel.dto';
+import { CreateChannelDto } from '../model/create-channel.dto';
+import { UpdateChannelDto } from '../model/update-channel.dto';
 
 @ApiTags('channels')
 @Controller('channels')
@@ -60,5 +63,14 @@ export class ChannelsController {
     @Body() updateChannelDto: UpdateChannelDto,
   ): Promise<ChannelDto> {
     return this.channelService.update(id, updateChannelDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiNoContentResponse()
+  remove(@Req() request: any, @Param('id') id: number): Promise<any> {
+    return this.channelService.remove(id, request.user);
   }
 }

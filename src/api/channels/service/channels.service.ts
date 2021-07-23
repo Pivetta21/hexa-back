@@ -6,6 +6,8 @@ import { ChannelRepository } from '../../../repositories/channel.repository';
 import { ChannelDto } from '../model/channel.dto';
 import { CreateChannelDto } from '../model/create-channel.dto';
 import { UpdateChannelDto } from '../model/update-channel.dto';
+import { DeleteResult } from 'typeorm';
+import { UserDto } from '../../users/model/user.dto';
 
 @Injectable()
 export class ChannelsService {
@@ -48,5 +50,26 @@ export class ChannelsService {
     await this.channelRepository.update(id, updateChannelDto);
 
     return newChannel;
+  }
+
+  async remove(id: number, user: UserDto): Promise<any> {
+    const channel = await this.channelRepository.findOne({
+      where: { id: id, user: user.id },
+    });
+
+    if (!channel) {
+      throw new HttpException(
+        'Não encontramos o recurso que você deseja!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const result: DeleteResult = await this.channelRepository.delete(id);
+
+    if (result.affected == 0) {
+      throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
+    }
+
+    return result;
   }
 }
