@@ -13,12 +13,12 @@ export class Channel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, (user) => user.id, {
+  @OneToOne(() => User, {
     nullable: false,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  user: number;
+  user: User;
 
   @Column('varchar', { length: 255, nullable: false, unique: true })
   name: string;

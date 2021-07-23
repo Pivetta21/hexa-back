@@ -6,15 +6,15 @@ import {
   IsInt,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserDto } from '../../users/model/user.dto';
 
 export class ChannelDto {
   @IsInt()
   @ApiProperty({ example: 1 })
   id: number;
 
-  @IsInt()
-  @ApiProperty({ example: 1 })
-  user: number;
+  @ApiProperty()
+  user: UserDto;
 
   @IsString()
   @IsNotEmpty()
