@@ -31,7 +31,10 @@ export class ChannelsService {
   }
 
   findOne(id: number): Promise<ChannelDto> {
-    return this.channelRepository.findOne({ where: { id: id } });
+    return this.channelRepository.findOne({
+      where: { id: id },
+      relations: ['user'],
+    });
   }
 
   async create(createChannelDto: CreateChannelDto): Promise<ChannelDto> {
