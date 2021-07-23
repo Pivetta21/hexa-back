@@ -12,7 +12,10 @@ export class EmailConfirmation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, (user) => user.id, { nullable: false })
+  @OneToOne(() => User, (user) => user.id, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   user: number;
 

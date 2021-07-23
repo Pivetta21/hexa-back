@@ -5,11 +5,16 @@ import fs = require('fs');
 import path = require('path');
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+
 import { UserRepository } from 'src/repositories/user.repository';
+import { ChannelRepository } from 'src/repositories/channel.repository';
 
 @Injectable()
 export class StorageService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly channelRepository: ChannelRepository,
+  ) {}
 
   static getDiskStorage(storageDir: string) {
     return {
@@ -36,6 +41,31 @@ export class StorageService {
     const user = await this.userRepository.findOne(reqUser.id);
 
     const userPath = path.join(cwd, user.pictureUrl);
+    const requestPath = path.join(
+      cwd,
+      process.env.STORAGE_IMAGES_DIR,
+      filename,
+    );
+
+    if (userPath != requestPath) {
+      throw new HttpException('Ação não permitida!', HttpStatus.FORBIDDEN);
+    }
+
+    if (!fs.existsSync(requestPath)) {
+      throw new HttpException('Arquivo não encontrado!', HttpStatus.NOT_FOUND);
+    } else {
+      fs.unlinkSync(requestPath);
+    }
+  }
+
+  async deleteChannelImage(reqUser: UserDto, filename: string): Promise<void> {
+    const cwd = process.cwd();
+
+    const channel = await this.channelRepository.findOne({
+      where: { user: reqUser.id },
+    });
+
+    const userPath = path.join(cwd, channel.banner_url);
     const requestPath = path.join(
       cwd,
       process.env.STORAGE_IMAGES_DIR,
