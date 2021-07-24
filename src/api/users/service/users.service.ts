@@ -1,8 +1,8 @@
-import { MailService } from './../../../mail/service/mail.service';
-import { AuthenticatedUserDto } from './../model/authenticated-user.dto';
+import { MailService } from '../../../mail/service/mail.service';
+import { AuthenticatedUserDto } from '../model/authenticated-user.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
-import { User } from './../../../entities/user.entity';
+import { User } from '../../../entities/user.entity';
 import { UserRepository } from '../../../repositories/user.repository';
 import { AuthService } from '../../../auth/service/auth.service';
 import { UserDto } from '../model/user.dto';
@@ -37,13 +37,26 @@ export class UsersService {
       createUserDto.password,
     );
 
-    const newUser = await this.userRepository.save(createUserDto);
-
-    return this.convertUserToUserDto(newUser);
+    return await this.userRepository.save(createUserDto);
   }
 
   async login(loginUserDto: LoginUserDto): Promise<AuthenticatedUserDto> {
-    const user = await this.findUserByEmail(loginUserDto.email);
+    const user = await this.userRepository.findOne({
+      where: { email: loginUserDto.email },
+      select: [
+        'id',
+        'name',
+        'email',
+        'password',
+        'pictureUrl',
+        'signUpDate',
+        'isEmailValidated',
+      ],
+    });
+
+    if (!user) {
+      throw new HttpException('E-mail não encontrado.', HttpStatus.NOT_FOUND);
+    }
 
     const passwordsMatches = await this.authService.comparePasswords(
       loginUserDto.password,
@@ -57,24 +70,25 @@ export class UsersService {
       );
     }
 
-    const userDto = this.convertUserToUserDto(user);
-    const jwt = await this.authService.generateJwt(userDto);
+    const authenticatedUser = Object.assign({}, user);
+    delete authenticatedUser.password;
 
-    return { user: userDto, token: jwt };
+    const jwt = await this.authService.generateJwt(authenticatedUser);
+
+    return { user: authenticatedUser, token: jwt };
   }
 
   async getEmailConfirmation(email: string) {
     const user = await this.findUserByEmail(email);
-    const userDto = this.convertUserToUserDto(user);
 
     const emailConfirmation = await this.mailService.createEmailConfirmation(
-      userDto,
+      user,
     );
 
     if (emailConfirmation) {
       this.mailService.sendEmail({
-        to: userDto.email,
-        subject: `${userDto.name}, confirmação de e-mail.`,
+        to: user.email,
+        subject: `${user.name}, confirmação de e-mail.`,
         text: `Seu código é ${emailConfirmation.code} e irá expirar em 24 horas!`,
       });
     } else {
@@ -98,7 +112,7 @@ export class UsersService {
     if (isEmailValidated) {
       await this.userRepository.update(user.id, { isEmailValidated: true });
 
-      this.mailService.removeEmailConfirmation(user.id);
+      await this.mailService.removeEmailConfirmation(user.id);
 
       this.mailService.sendEmail({
         to: user.email,
@@ -128,11 +142,9 @@ export class UsersService {
       updateUserDto.password = await this.authService.hashPassword(password);
     }
 
-    this.userRepository.update(id, updateUserDto);
+    await this.userRepository.update(id, updateUserDto);
 
-    const newUser = { ...user, ...updateUserDto };
-
-    return this.convertUserToUserDto(newUser);
+    return { ...user, ...updateUserDto };
   }
 
   async remove(id: number, requestUser: UserDto): Promise<any> {
@@ -164,7 +176,7 @@ export class UsersService {
       throw new HttpException('E-mail não encontrado.', HttpStatus.NOT_FOUND);
     }
 
-    return this.userRepository.findOne({ where: { email } });
+    return user;
   }
 
   private async verifyIfEmailIsBeingUsed(email: string): Promise<void> {
@@ -173,17 +185,5 @@ export class UsersService {
     if (user) {
       throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
     }
-  }
-
-  private convertUserToUserDto(user: User | any): UserDto {
-    return {
-      id: user.id,
-      email: user.email,
-      isCreator: user.isCreator,
-      name: user.name,
-      pictureUrl: user.pictureUrl,
-      signUpDate: user.signUpDate,
-      isEmailValidated: user.isEmailValidated,
-    } as UserDto;
   }
 }

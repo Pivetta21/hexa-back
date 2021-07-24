@@ -2,23 +2,25 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { User } from './user.entity';
+import { ChannelToUser } from './channel-user.entity';
 
 @Entity()
 export class Channel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User, (user) => user.id, {
+  @OneToOne(() => User, {
     nullable: false,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  user: number;
+  user: User;
 
   @Column('varchar', { length: 255, nullable: false, unique: true })
   name: string;
@@ -31,4 +33,7 @@ export class Channel {
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
   created_at: string;
+
+  @OneToMany(() => ChannelToUser, (channelToUser) => channelToUser.channel)
+  channelToUsers!: ChannelToUser[];
 }

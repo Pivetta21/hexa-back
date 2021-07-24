@@ -1,5 +1,6 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { ChannelToUser } from './channel-user.entity';
 
 @Entity()
 export class User {
@@ -16,7 +17,7 @@ export class User {
   pictureUrl: string;
 
   @Exclude()
-  @Column('varchar', { length: 400, nullable: false })
+  @Column('varchar', { length: 400, nullable: false, select: false })
   password: string;
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
@@ -25,8 +26,6 @@ export class User {
   @Column('boolean', { default: () => 'FALSE' })
   isEmailValidated: boolean;
 
-  @BeforeInsert()
-  emailToLowerCase() {
-    this.email = this.email.toLowerCase();
-  }
+  @OneToMany(() => ChannelToUser, (channelToUser) => channelToUser.user)
+  channelToUsers!: ChannelToUser[];
 }

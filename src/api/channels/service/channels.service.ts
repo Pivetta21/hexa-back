@@ -18,19 +18,28 @@ export class ChannelsService {
 
   find(userId?: number): Promise<ChannelDto[] | ChannelDto> {
     if (userId) {
-      return this.channelRepository.findOne({ where: { user: userId } });
+      return this.channelRepository.findOne({
+        where: { user: userId },
+        relations: ['user'],
+      });
     }
 
-    return this.channelRepository.find({ order: { id: 'ASC' } });
+    return this.channelRepository.find({
+      order: { id: 'ASC' },
+      relations: ['user'],
+    });
   }
 
   findOne(id: number): Promise<ChannelDto> {
-    return this.channelRepository.findOne({ where: { id: id } });
+    return this.channelRepository.findOne({
+      where: { id: id },
+      relations: ['user'],
+    });
   }
 
   async create(createChannelDto: CreateChannelDto): Promise<ChannelDto> {
     const user = await this.userRepository.findOne({
-      where: { id: createChannelDto.user },
+      where: { id: createChannelDto.user.id },
     });
 
     if (!user) {

@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import {
   IsOptional,
   IsString,
@@ -5,16 +7,16 @@ import {
   Length,
   IsInt,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+
+import { User } from './../../../entities/user.entity';
 
 export class ChannelDto {
   @IsInt()
   @ApiProperty({ example: 1 })
   id: number;
 
-  @IsInt()
-  @ApiProperty({ example: 1 })
-  user: number;
+  @ApiProperty()
+  user: User;
 
   @IsString()
   @IsNotEmpty()

@@ -1,4 +1,5 @@
 import { UserDto } from '../../api/users/model/user.dto';
+
 const bcrypt = require('bcrypt');
 
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
@@ -9,7 +10,12 @@ export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
   generateJwt(user: UserDto): Promise<string> {
-    return this.jwtService.signAsync({ user });
+    return this.jwtService.signAsync({
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    });
   }
 
   hashPassword(password: string): Promise<string> {
