@@ -1,8 +1,8 @@
-import { MailService } from './../../../mail/service/mail.service';
-import { AuthenticatedUserDto } from './../model/authenticated-user.dto';
+import { MailService } from '../../../mail/service/mail.service';
+import { AuthenticatedUserDto } from '../model/authenticated-user.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
-import { User } from './../../../entities/user.entity';
+import { User } from '../../../entities/user.entity';
 import { UserRepository } from '../../../repositories/user.repository';
 import { AuthService } from '../../../auth/service/auth.service';
 import { UserDto } from '../model/user.dto';
@@ -54,6 +54,10 @@ export class UsersService {
       ],
     });
 
+    if (!user) {
+      throw new HttpException('E-mail não encontrado.', HttpStatus.NOT_FOUND);
+    }
+
     const passwordsMatches = await this.authService.comparePasswords(
       loginUserDto.password,
       user.password,
@@ -66,9 +70,12 @@ export class UsersService {
       );
     }
 
-    const jwt = await this.authService.generateJwt(user);
+    const authenticatedUser = Object.assign({}, user);
+    delete authenticatedUser.password;
 
-    return { user: user, token: jwt };
+    const jwt = await this.authService.generateJwt(authenticatedUser);
+
+    return { user: authenticatedUser, token: jwt };
   }
 
   async getEmailConfirmation(email: string) {
@@ -105,7 +112,7 @@ export class UsersService {
     if (isEmailValidated) {
       await this.userRepository.update(user.id, { isEmailValidated: true });
 
-      this.mailService.removeEmailConfirmation(user.id);
+      await this.mailService.removeEmailConfirmation(user.id);
 
       this.mailService.sendEmail({
         to: user.email,
@@ -135,11 +142,9 @@ export class UsersService {
       updateUserDto.password = await this.authService.hashPassword(password);
     }
 
-    this.userRepository.update(id, updateUserDto);
+    await this.userRepository.update(id, updateUserDto);
 
-    const newUser = { ...user, ...updateUserDto };
-
-    return newUser;
+    return { ...user, ...updateUserDto };
   }
 
   async remove(id: number, requestUser: UserDto): Promise<any> {

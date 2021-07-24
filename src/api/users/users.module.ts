@@ -1,4 +1,4 @@
-import { MailModule } from './../../mail/mail.module';
+import { MailModule } from '../../mail/mail.module';
 import { AuthModule } from '../../auth/auth.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
