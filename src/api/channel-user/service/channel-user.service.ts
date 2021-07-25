@@ -28,7 +28,7 @@ export class ChannelUserService {
 
     return this.channelToUserRepository.find({
       where: { user: { id: userId } },
-      relations: ['channel'],
+      relations: ['channel', 'channel.user'],
     });
   }
 
