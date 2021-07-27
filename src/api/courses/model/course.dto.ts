@@ -1,38 +1,48 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
-  IsNotEmpty,
   Length,
-  IsInt,
 } from 'class-validator';
 
-import { UserDto } from '../../users/model/user.dto';
+import { ChannelDto } from '../../channels/model/channel.dto';
 
-export class ChannelDto {
+export class CourseDto {
   @IsInt()
   @ApiProperty({ example: 1 })
   id: number;
 
   @ApiProperty({ example: { id: 1 } })
-  user: UserDto;
+  channel!: ChannelDto;
 
   @IsString()
   @IsNotEmpty()
   @Length(5, 255)
-  @ApiProperty({ example: 'Ragnaros Channel' })
+  @ApiProperty({ example: 'Ragnaros Course' })
   name: string;
 
   @IsOptional()
   @IsString()
   @ApiProperty({ example: 'Nice description here...', required: false })
-  description?: string;
+  description: string;
 
   @IsOptional()
   @IsString()
   @ApiProperty({ example: 'storage/images/filename.jpg' })
-  banner_url?: string;
+  image_url: string;
+
+  @IsNumber()
+  @ApiProperty({ example: 12.5 })
+  price: number;
+
+  @IsBoolean()
+  @ApiProperty({ example: false })
+  isPublic: boolean;
 
   @IsString()
   @ApiProperty({ example: '2021-07-05 00:26:06.399+00' })

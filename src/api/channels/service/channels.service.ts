@@ -30,11 +30,20 @@ export class ChannelsService {
     });
   }
 
-  findOne(id: number): Promise<ChannelDto> {
-    return this.channelRepository.findOne({
+  async findOne(id: number): Promise<ChannelDto> {
+    const channel = await this.channelRepository.findOne({
       where: { id: id },
       relations: ['user'],
     });
+
+    if (!channel) {
+      throw new HttpException(
+        'Não encontramos esse canal!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return channel;
   }
 
   async create(createChannelDto: CreateChannelDto): Promise<ChannelDto> {
