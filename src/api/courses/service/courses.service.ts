@@ -27,6 +27,7 @@ export class CoursesService {
 
     return this.courseRepository.find({
       order: { id: 'ASC' },
+      where: { isPublic: true },
       relations: ['channel'],
     });
   }
