@@ -20,11 +20,15 @@ export class CoursesService {
   findAll(channelId?: number): Promise<CourseDto[]> {
     if (channelId) {
       return this.courseRepository.find({
+        order: { id: 'ASC' },
         where: { channel: { id: channelId } },
       });
     }
 
-    return this.courseRepository.find({ relations: ['channel'] });
+    return this.courseRepository.find({
+      order: { id: 'ASC' },
+      relations: ['channel'],
+    });
   }
 
   async findOne(id: number): Promise<CourseDto> {
@@ -70,7 +74,9 @@ export class CoursesService {
     id: number,
     updateCourseDto: UpdateCourseDto,
   ): Promise<CourseDto> {
-    const course = await this.courseRepository.findOne(id);
+    const course = await this.courseRepository.findOne(id, {
+      relations: ['channel'],
+    });
 
     if (!course) {
       throw new HttpException(
