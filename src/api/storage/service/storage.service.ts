@@ -62,10 +62,22 @@ export class StorageService {
     }
   }
 
-  async deleteCourseImage(reqUser: UserDto, filename: string): Promise<void> {
-    const course = await this.courseRepository.findOne({
-      where: { channel: { user: reqUser.id } },
+  async deleteCourseImage(
+    reqUser: UserDto,
+    courseId: number,
+    filename: string,
+  ): Promise<void> {
+    const course = await this.courseRepository.findOne(courseId, {
+      relations: ['channel'],
     });
+
+    const channel = await this.channelRepository.findOne({
+      where: { user: reqUser.id },
+    });
+
+    if (course.channel.id !== channel.id) {
+      throw new HttpException('Ação não permitida!', HttpStatus.FORBIDDEN);
+    }
 
     if (course.image_url) {
       StorageService.removeImage({

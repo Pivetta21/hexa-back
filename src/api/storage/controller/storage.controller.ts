@@ -8,6 +8,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UploadedFile,
@@ -20,6 +21,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -69,8 +71,13 @@ export class StorageController {
   @Delete('images/course/:filename')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @ApiQuery({ name: 'courseId', required: true })
   @ApiOkResponse()
-  deleteCourseImage(@Req() req: any, @Param('filename') filename: string) {
-    return this.storageService.deleteCourseImage(req.user, filename);
+  deleteCourseImage(
+    @Req() req: any,
+    @Query('courseId') courseId: number,
+    @Param('filename') filename: string,
+  ) {
+    return this.storageService.deleteCourseImage(req.user, courseId, filename);
   }
 }
