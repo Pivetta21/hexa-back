@@ -1,12 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { DeleteResult } from 'typeorm';
+import { CourseDto } from '../model/course.dto';
 import { CreateCourseDto } from '../model/create-course.dto';
 import { UpdateCourseDto } from '../model/update-course.dto';
-import { CourseRepository } from '../../../repositories/course.repository';
-import { ChannelRepository } from '../../../repositories/channel.repository';
-import { CourseDto } from '../model/course.dto';
-import { DeleteResult } from 'typeorm';
 import { UserDto } from '../../users/model/user.dto';
 import { ChannelDto } from '../../channels/model/channel.dto';
+import { CourseRepository } from '../../../repositories/course.repository';
+import { ChannelRepository } from '../../../repositories/channel.repository';
+
+import fs = require('fs');
 
 @Injectable()
 export class CoursesService {
@@ -15,7 +17,13 @@ export class CoursesService {
     private readonly channelRepository: ChannelRepository,
   ) {}
 
-  findAll(): Promise<CourseDto[]> {
+  findAll(channelId?: number): Promise<CourseDto[]> {
+    if (channelId) {
+      return this.courseRepository.find({
+        where: { channel: { id: channelId } },
+      });
+    }
+
     return this.courseRepository.find({ relations: ['channel'] });
   }
 
@@ -39,9 +47,23 @@ export class CoursesService {
     createCourseDto: CreateCourseDto,
     user: UserDto,
   ): Promise<CourseDto> {
-    await this.findChannelById(createCourseDto.channel.id, user);
+    const channel = await this.findChannelById(
+      createCourseDto.channel.id,
+      user,
+    );
 
-    return this.courseRepository.save(createCourseDto);
+    const course = await this.courseRepository.save(createCourseDto);
+
+    const coursePath = CoursesService.getCoursePath({
+      channelId: channel.id,
+      courseId: course.id,
+    });
+
+    if (!fs.existsSync(coursePath)) {
+      fs.mkdirSync(coursePath, { recursive: true });
+    }
+
+    return course;
   }
 
   async update(
@@ -72,7 +94,23 @@ export class CoursesService {
       throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
     }
 
+    const coursePath = CoursesService.getCoursePath({
+      channelId: channelId,
+      courseId: id,
+    });
+
+    if (fs.existsSync(coursePath)) {
+      fs.rmSync(coursePath, { recursive: true });
+    }
+
     return result;
+  }
+
+  private static getCoursePath(args: {
+    channelId: number;
+    courseId: number;
+  }): string {
+    return `${process.env.STORAGE_VIDEOS_DIR}/channel-${args.channelId}/course-${args.courseId}`;
   }
 
   private async findChannelById(

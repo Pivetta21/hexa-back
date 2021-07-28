@@ -26,15 +26,16 @@ import { CourseDto } from '../model/course.dto';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { UserDto } from '../../users/model/user.dto';
 
-@ApiTags('course')
-@Controller('course')
+@ApiTags('courses')
+@Controller('courses')
 export class CoursesController {
   constructor(private readonly courseService: CoursesService) {}
 
   @Get()
+  @ApiQuery({ name: 'channelId', required: false })
   @ApiOkResponse({ type: CourseDto, isArray: true })
-  findAll(): Promise<CourseDto[]> {
-    return this.courseService.findAll();
+  findAll(@Query('channelId') channelId?: number): Promise<CourseDto[]> {
+    return this.courseService.findAll(channelId);
   }
 
   @Get(':id')

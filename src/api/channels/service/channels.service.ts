@@ -1,13 +1,15 @@
-import { UserRepository } from '../../../repositories/user.repository';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { DeleteResult } from 'typeorm';
 
+import { UserRepository } from '../../../repositories/user.repository';
 import { ChannelRepository } from '../../../repositories/channel.repository';
 
 import { ChannelDto } from '../model/channel.dto';
 import { CreateChannelDto } from '../model/create-channel.dto';
 import { UpdateChannelDto } from '../model/update-channel.dto';
-import { DeleteResult } from 'typeorm';
 import { UserDto } from '../../users/model/user.dto';
+
+import fs = require('fs');
 
 @Injectable()
 export class ChannelsService {
@@ -55,7 +57,14 @@ export class ChannelsService {
       throw new HttpException('Problemas com sua conta!', HttpStatus.NOT_FOUND);
     }
 
-    return await this.channelRepository.save(createChannelDto);
+    const channel = await this.channelRepository.save(createChannelDto);
+
+    const channelPath = ChannelsService.getChannelPath(channel.id);
+    if (!fs.existsSync(channelPath)) {
+      fs.mkdirSync(channelPath, { recursive: true });
+    }
+
+    return channel;
   }
 
   async update(
@@ -88,6 +97,15 @@ export class ChannelsService {
       throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
     }
 
+    const channelPath = ChannelsService.getChannelPath(channel.id);
+    if (fs.existsSync(channelPath)) {
+      fs.rmSync(channelPath, { recursive: true });
+    }
+
     return result;
+  }
+
+  private static getChannelPath(channelId: number) {
+    return `${process.env.STORAGE_VIDEOS_DIR}/channel-${channelId}`;
   }
 }

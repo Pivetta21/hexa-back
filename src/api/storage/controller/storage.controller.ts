@@ -1,6 +1,6 @@
-import { FileDto } from './../model/file.dto';
+import { FileDto } from '../model/file.dto';
 
-import { StorageService } from './../service/storage.service';
+import { StorageService } from '../service/storage.service';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import {
   Controller,
@@ -64,5 +64,13 @@ export class StorageController {
   @ApiOkResponse()
   deleteChannelImage(@Req() req: any, @Param('filename') filename: string) {
     return this.storageService.deleteChannelImage(req.user, filename);
+  }
+
+  @Delete('images/course/:filename')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse()
+  deleteCourseImage(@Req() req: any, @Param('filename') filename: string) {
+    return this.storageService.deleteCourseImage(req.user, filename);
   }
 }
