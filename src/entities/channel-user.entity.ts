@@ -10,9 +10,15 @@ export class ChannelToUser {
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
   followed_at: string;
 
-  @ManyToOne(() => Channel, (channel) => channel.channelToUsers)
+  @ManyToOne(() => Channel, (channel) => channel.channelToUsers, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   channel!: Channel;
 
-  @ManyToOne(() => User, (user) => user.channelToUsers)
+  @ManyToOne(() => User, (user) => user.channelToUsers, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   user!: User;
 }

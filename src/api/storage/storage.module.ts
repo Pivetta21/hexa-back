@@ -10,10 +10,15 @@ import fs = require('fs');
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from 'src/repositories/user.repository';
 import { ChannelRepository } from 'src/repositories/channel.repository';
+import { CourseRepository } from '../../repositories/course.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserRepository, ChannelRepository]),
+    TypeOrmModule.forFeature([
+      UserRepository,
+      ChannelRepository,
+      CourseRepository,
+    ]),
     AuthModule,
   ],
   controllers: [StorageController],

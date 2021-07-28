@@ -9,6 +9,7 @@ import {
 
 import { User } from './user.entity';
 import { ChannelToUser } from './channel-user.entity';
+import { Course } from './course.entity';
 
 @Entity()
 export class Channel {
@@ -36,4 +37,7 @@ export class Channel {
 
   @OneToMany(() => ChannelToUser, (channelToUser) => channelToUser.channel)
   channelToUsers!: ChannelToUser[];
+
+  @OneToMany(() => Course, (course) => course.channel)
+  courses!: Course[];
 }
