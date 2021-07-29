@@ -38,6 +38,15 @@ export class CoursesController {
     return this.courseService.findAll(channelId);
   }
 
+  @Get('following')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: CourseDto, isArray: true })
+  findAllUserFollowingCourses(@Req() request: any): Promise<CourseDto[]> {
+    const user: UserDto = request.user;
+    return this.courseService.findAllUserFollowingCourses(user);
+  }
+
   @Get(':id')
   @ApiOkResponse({ type: CourseDto })
   findOne(@Param('id') id: number): Promise<CourseDto> {

@@ -17,16 +17,35 @@ export class CoursesService {
     private readonly channelRepository: ChannelRepository,
   ) {}
 
+  findAllUserFollowingCourses(user: UserDto) {
+    return this.courseRepository
+      .createQueryBuilder('course')
+      .innerJoinAndSelect(
+        'course.channel',
+        'channel',
+        'course.channelId = channel.id',
+      )
+      .innerJoin(
+        'channel.channelToUsers',
+        'ctu',
+        'ctu.channelId = channel.id AND ctu.userId = :userId',
+        { userId: user.id },
+      )
+      .innerJoinAndSelect('channel.user', 'user', 'user.id = channel.userId')
+      .orderBy({ 'course.created_at': 'DESC' })
+      .getMany();
+  }
+
   findAll(channelId?: number): Promise<CourseDto[]> {
     if (channelId) {
       return this.courseRepository.find({
-        order: { id: 'ASC' },
+        order: { created_at: 'DESC' },
         where: { channel: { id: channelId } },
       });
     }
 
     return this.courseRepository.find({
-      order: { id: 'ASC' },
+      order: { created_at: 'DESC' },
       where: { isPublic: true },
       relations: ['channel', 'channel.user'],
     });
