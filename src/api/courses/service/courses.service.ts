@@ -41,6 +41,7 @@ export class CoursesService {
       return this.courseRepository.find({
         order: { created_at: 'DESC' },
         where: { channel: { id: channelId } },
+        relations: ['channel', 'channel.user'],
       });
     }
 
