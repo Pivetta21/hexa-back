@@ -17,18 +17,38 @@ export class CoursesService {
     private readonly channelRepository: ChannelRepository,
   ) {}
 
+  findAllUserFollowingCourses(user: UserDto) {
+    return this.courseRepository
+      .createQueryBuilder('course')
+      .innerJoinAndSelect(
+        'course.channel',
+        'channel',
+        'course.channelId = channel.id',
+      )
+      .innerJoin(
+        'channel.channelToUsers',
+        'ctu',
+        'ctu.channelId = channel.id AND ctu.userId = :userId',
+        { userId: user.id },
+      )
+      .innerJoinAndSelect('channel.user', 'user', 'user.id = channel.userId')
+      .orderBy({ 'course.created_at': 'DESC' })
+      .getMany();
+  }
+
   findAll(channelId?: number): Promise<CourseDto[]> {
     if (channelId) {
       return this.courseRepository.find({
-        order: { id: 'ASC' },
+        order: { created_at: 'DESC' },
         where: { channel: { id: channelId } },
+        relations: ['channel', 'channel.user'],
       });
     }
 
     return this.courseRepository.find({
-      order: { id: 'ASC' },
+      order: { created_at: 'DESC' },
       where: { isPublic: true },
-      relations: ['channel'],
+      relations: ['channel', 'channel.user'],
     });
   }
 
@@ -60,6 +80,7 @@ export class CoursesService {
     const course = await this.courseRepository.save(createCourseDto);
 
     const coursePath = CoursesService.getCoursePath({
+      userId: user.id,
       channelId: channel.id,
       courseId: course.id,
     });
@@ -102,6 +123,7 @@ export class CoursesService {
     }
 
     const coursePath = CoursesService.getCoursePath({
+      userId: user.id,
       channelId: channelId,
       courseId: id,
     });
@@ -114,10 +136,11 @@ export class CoursesService {
   }
 
   private static getCoursePath(args: {
+    userId: number;
     channelId: number;
     courseId: number;
   }): string {
-    return `${process.env.STORAGE_VIDEOS_DIR}/channel-${args.channelId}/course-${args.courseId}`;
+    return `${process.env.STORAGE_DIR}/${args.userId}/${args.channelId}/${args.courseId}`;
   }
 
   private async findChannelById(

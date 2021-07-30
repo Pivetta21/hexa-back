@@ -10,6 +10,8 @@ import { CreateUserDto } from '../model/create-user.dto';
 import { UpdateUserDto } from '../model/update-user.dto';
 import { LoginUserDto } from '../model/login-user.dto';
 
+const fs = require('fs');
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -37,7 +39,14 @@ export class UsersService {
       createUserDto.password,
     );
 
-    return await this.userRepository.save(createUserDto);
+    const user = await this.userRepository.save(createUserDto);
+
+    const userPath = UsersService.getUserPath(user.id);
+    if (!fs.existsSync(userPath)) {
+      fs.mkdirSync(userPath, { recursive: true });
+    }
+
+    return user;
   }
 
   async login(loginUserDto: LoginUserDto): Promise<AuthenticatedUserDto> {
@@ -156,6 +165,11 @@ export class UsersService {
       throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
     }
 
+    const userPath = UsersService.getUserPath(id);
+    if (fs.existsSync(userPath)) {
+      fs.rmSync(userPath, { recursive: true });
+    }
+
     return result;
   }
 
@@ -185,5 +199,9 @@ export class UsersService {
     if (user) {
       throw new HttpException('E-mail ja está em uso.', HttpStatus.CONFLICT);
     }
+  }
+
+  private static getUserPath(userId: number): string {
+    return `${process.env.STORAGE_DIR}/${userId}`;
   }
 }
