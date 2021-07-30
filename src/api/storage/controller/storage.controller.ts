@@ -32,10 +32,7 @@ export class StorageController {
 
   @Post('images')
   @UseInterceptors(
-    FileInterceptor(
-      'file',
-      StorageService.getDiskStorage(process.env.STORAGE_IMAGES_DIR),
-    ),
+    FileInterceptor('file', StorageService.getImagesDiskStorage()),
   )
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -44,11 +41,14 @@ export class StorageController {
     return Promise.resolve(file);
   }
 
-  @Get('images/:filename')
+  @Get('images/:id/:filename')
   @ApiOkResponse()
-  findImage(@Res() res, @Param('filename') filename): Promise<any> {
+  findImage(@Res() res, @Param() params: any): Promise<any> {
     return res.sendFile(
-      StorageService.getFilePath(process.env.STORAGE_IMAGES_DIR, filename),
+      StorageService.getFilePath(
+        process.env.STORAGE_DIR + `/${params.id}/`,
+        params.filename,
+      ),
     );
   }
 

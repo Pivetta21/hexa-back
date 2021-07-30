@@ -80,6 +80,7 @@ export class CoursesService {
     const course = await this.courseRepository.save(createCourseDto);
 
     const coursePath = CoursesService.getCoursePath({
+      userId: user.id,
       channelId: channel.id,
       courseId: course.id,
     });
@@ -122,6 +123,7 @@ export class CoursesService {
     }
 
     const coursePath = CoursesService.getCoursePath({
+      userId: user.id,
       channelId: channelId,
       courseId: id,
     });
@@ -134,10 +136,11 @@ export class CoursesService {
   }
 
   private static getCoursePath(args: {
+    userId: number;
     channelId: number;
     courseId: number;
   }): string {
-    return `${process.env.STORAGE_VIDEOS_DIR}/channel-${args.channelId}/course-${args.courseId}`;
+    return `${process.env.STORAGE_DIR}/${args.userId}/${args.channelId}/${args.courseId}`;
   }
 
   private async findChannelById(

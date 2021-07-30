@@ -26,12 +26,8 @@ import { CourseRepository } from '../../repositories/course.repository';
 })
 export class StorageModule {
   constructor() {
-    if (!fs.existsSync(process.env.STORAGE_IMAGES_DIR)) {
-      fs.mkdirSync(process.env.STORAGE_IMAGES_DIR, { recursive: true });
-    }
-
-    if (!fs.existsSync(process.env.STORAGE_VIDEOS_DIR)) {
-      fs.mkdirSync(process.env.STORAGE_VIDEOS_DIR, { recursive: true });
+    if (!fs.existsSync(process.env.STORAGE_DIR)) {
+      fs.mkdirSync(process.env.STORAGE_DIR, { recursive: true });
     }
   }
 }

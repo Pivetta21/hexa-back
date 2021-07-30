@@ -18,17 +18,19 @@ export class StorageService {
     private readonly courseRepository: CourseRepository,
   ) {}
 
-  static getDiskStorage(storageDir: string) {
+  static getImagesDiskStorage() {
     return {
       storage: diskStorage({
-        destination: storageDir,
+        destination: process.env.STORAGE_DIR,
         filename: (req, file, cb) => {
+          const { id } = req.user as any;
+
           const filename: string = path
             .parse(file.originalname)
             .name.replace(/\s/g, '');
           const extension: string = path.parse(file.originalname).ext;
 
-          cb(null, `${filename + uuidv4()}${extension}`);
+          cb(null, `${id}/${filename + uuidv4()}${extension}`);
         },
       }),
     };
@@ -43,6 +45,7 @@ export class StorageService {
 
     if (user.pictureUrl) {
       StorageService.removeImage({
+        userId: reqUser.id,
         clientFileUrl: user.pictureUrl,
         reqFileName: filename,
       });
@@ -56,6 +59,7 @@ export class StorageService {
 
     if (channel.banner_url) {
       StorageService.removeImage({
+        userId: reqUser.id,
         clientFileUrl: channel.banner_url,
         reqFileName: filename,
       });
@@ -81,6 +85,7 @@ export class StorageService {
 
     if (course.image_url) {
       StorageService.removeImage({
+        userId: reqUser.id,
         clientFileUrl: course.image_url,
         reqFileName: filename,
       });
@@ -88,17 +93,14 @@ export class StorageService {
   }
 
   private static removeImage(args: {
+    userId: number;
     clientFileUrl: string;
     reqFileName: string;
   }): void {
-    const currentWorkingDirectory = process.cwd();
+    const cwd = process.cwd();
 
-    const clientPath = path.join(currentWorkingDirectory, args.clientFileUrl);
-    const requestPath = path.join(
-      currentWorkingDirectory,
-      process.env.STORAGE_IMAGES_DIR,
-      args.reqFileName,
-    );
+    const requestPath = `${cwd}/storage/${args.userId}/${args.reqFileName}`;
+    const clientPath = `${cwd}/storage/${args.clientFileUrl}`;
 
     if (clientPath != requestPath) {
       throw new HttpException('Ação não permitida!', HttpStatus.FORBIDDEN);

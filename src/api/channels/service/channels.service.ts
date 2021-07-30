@@ -59,7 +59,10 @@ export class ChannelsService {
 
     const channel = await this.channelRepository.save(createChannelDto);
 
-    const channelPath = ChannelsService.getChannelPath(channel.id);
+    const channelPath = ChannelsService.getChannelPath({
+      userId: createChannelDto.user.id,
+      channelId: channel.id,
+    });
     if (!fs.existsSync(channelPath)) {
       fs.mkdirSync(channelPath, { recursive: true });
     }
@@ -97,7 +100,10 @@ export class ChannelsService {
       throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
     }
 
-    const channelPath = ChannelsService.getChannelPath(channel.id);
+    const channelPath = ChannelsService.getChannelPath({
+      userId: user.id,
+      channelId: channel.id,
+    });
     if (fs.existsSync(channelPath)) {
       fs.rmSync(channelPath, { recursive: true });
     }
@@ -105,7 +111,7 @@ export class ChannelsService {
     return result;
   }
 
-  private static getChannelPath(channelId: number) {
-    return `${process.env.STORAGE_VIDEOS_DIR}/channel-${channelId}`;
+  private static getChannelPath(args: { userId: number; channelId: number }) {
+    return `${process.env.STORAGE_DIR}/${args.userId}/${args.channelId}`;
   }
 }
