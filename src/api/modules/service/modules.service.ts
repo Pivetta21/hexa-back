@@ -5,6 +5,7 @@ import { CreateModuleDto } from '../model/create-module.dto';
 
 import { ModuleRepository } from '../../../repositories/module.repository';
 import { UpdateModuleDto } from '../model/update-module.dto';
+import { DeleteResult } from 'typeorm';
 
 @Injectable()
 export class ModulesService {
@@ -31,21 +32,6 @@ export class ModulesService {
     return await this.moduleRepository.save(module);
   }
 
-  private async findModuleById(id: number): Promise<ModuleDto> {
-    const course = await this.moduleRepository.findOne({
-      where: { id: id },
-    });
-
-    if (!course) {
-      throw new HttpException(
-        'Não encontramos esse módulo!',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return course;
-  }
-
   async update(
     id: number,
     updateModuleDto: UpdateModuleDto,
@@ -63,5 +49,30 @@ export class ModulesService {
     await this.moduleRepository.update(id, updateModuleDto);
 
     return newModule;
+  }
+
+  async remove(id: number): Promise<boolean> {
+    const result: DeleteResult = await this.moduleRepository.delete(id);
+
+    if (result.affected == 0) {
+      throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
+    }
+
+    return true;
+  }
+
+  private async findModuleById(id: number): Promise<ModuleDto> {
+    const module = await this.moduleRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!module) {
+      throw new HttpException(
+        'Não encontramos esse módulo!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return module;
   }
 }

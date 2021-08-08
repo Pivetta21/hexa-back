@@ -1,6 +1,7 @@
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
@@ -9,7 +10,9 @@ import {
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -60,5 +63,14 @@ export class ModulesController {
     @Body() updateModuleDto: UpdateModuleDto,
   ): Promise<ModuleDto> {
     return this.modulesService.update(id, updateModuleDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiNoContentResponse()
+  remove(@Param('id') id: number): Promise<boolean> {
+    return this.modulesService.remove(id);
   }
 }
