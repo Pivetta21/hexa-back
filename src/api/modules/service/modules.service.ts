@@ -1,9 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { ModuleDto } from '../model/module.dto';
-import { CreateModuleDto } from '../model/createModule.dto';
+import { CreateModuleDto } from '../model/create-module.dto';
 
 import { ModuleRepository } from '../../../repositories/module.repository';
+import { UpdateModuleDto } from '../model/update-module.dto';
 
 @Injectable()
 export class ModulesService {
@@ -12,14 +13,12 @@ export class ModulesService {
   findAll(courseId?: number): Promise<ModuleDto[]> {
     if (courseId) {
       return this.moduleRepository.find({
-        order: { id: 'DESC' },
         where: { course: { id: courseId } },
+        order: { id: 'ASC' },
       });
     }
 
-    return this.moduleRepository.find({
-      order: { id: 'DESC' },
-    });
+    return this.moduleRepository.find();
   }
 
   async findOne(id: number): Promise<ModuleDto> {
@@ -45,5 +44,24 @@ export class ModulesService {
     }
 
     return course;
+  }
+
+  async update(
+    id: number,
+    updateModuleDto: UpdateModuleDto,
+  ): Promise<ModuleDto> {
+    const module = await this.moduleRepository.findOne(id);
+
+    if (!module) {
+      throw new HttpException(
+        'Não encontramos esse módulo!',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const newModule = { ...module, ...updateModuleDto };
+    await this.moduleRepository.update(id, updateModuleDto);
+
+    return newModule;
   }
 }

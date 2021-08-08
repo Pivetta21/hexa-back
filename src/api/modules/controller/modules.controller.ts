@@ -11,6 +11,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -21,7 +22,8 @@ import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { ModulesService } from '../service/modules.service';
 
 import { ModuleDto } from '../model/module.dto';
-import { CreateModuleDto } from '../model/createModule.dto';
+import { CreateModuleDto } from '../model/create-module.dto';
+import { UpdateModuleDto } from '../model/update-module.dto';
 
 @ApiTags('modules')
 @Controller('modules')
@@ -47,5 +49,16 @@ export class ModulesController {
   @ApiCreatedResponse({ type: ModuleDto })
   create(@Body() createCourseDto: CreateModuleDto): Promise<ModuleDto> {
     return this.modulesService.create(createCourseDto);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: ModuleDto })
+  update(
+    @Param('id') id: number,
+    @Body() updateModuleDto: UpdateModuleDto,
+  ): Promise<ModuleDto> {
+    return this.modulesService.update(id, updateModuleDto);
   }
 }
