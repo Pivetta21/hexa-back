@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { Channel } from './channel.entity';
+import { Module } from './module.entity';
 
 @Entity()
 export class Course {
@@ -19,6 +21,9 @@ export class Course {
   })
   @JoinColumn()
   channel!: Channel;
+
+  @OneToMany(() => Module, (module) => module.course)
+  modules!: Module[];
 
   @Column('varchar', { length: 255, nullable: false })
   name: string;
