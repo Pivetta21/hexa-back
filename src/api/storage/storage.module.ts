@@ -11,6 +11,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from 'src/repositories/user.repository';
 import { ChannelRepository } from 'src/repositories/channel.repository';
 import { CourseRepository } from '../../repositories/course.repository';
+import { ModuleRepository } from '../../repositories/module.repository';
+import { VideoRepository } from '../../repositories/video.repository';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { CourseRepository } from '../../repositories/course.repository';
       UserRepository,
       ChannelRepository,
       CourseRepository,
+      ModuleRepository,
+      VideoRepository,
     ]),
     AuthModule,
   ],

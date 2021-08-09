@@ -54,7 +54,10 @@ export class VideosService {
     }
 
     const newVideo = { ...video, ...updateVideoDto };
-    await this.videoRepository.update(id, updateVideoDto);
+
+    if (Object.keys(updateVideoDto).length !== 0) {
+      await this.videoRepository.update(id, updateVideoDto);
+    }
 
     return newVideo;
   }

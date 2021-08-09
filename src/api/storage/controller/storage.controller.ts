@@ -102,4 +102,24 @@ export class StorageController {
   ) {
     return this.storageService.deleteCourseImage(req.user, courseId, filename);
   }
+
+  @Delete('videos/:filename')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiQuery({ name: 'moduleId', required: true })
+  @ApiQuery({ name: 'videoId', required: true })
+  @ApiOkResponse()
+  deleteVideo(
+    @Req() req: any,
+    @Query('moduleId') moduleId: number,
+    @Query('videoId') videoId: number,
+    @Param('filename') filename: string,
+  ) {
+    return this.storageService.deleteVideo(
+      req.user,
+      moduleId,
+      videoId,
+      filename,
+    );
+  }
 }

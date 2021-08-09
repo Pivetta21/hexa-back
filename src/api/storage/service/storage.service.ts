@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserRepository } from 'src/repositories/user.repository';
 import { ChannelRepository } from 'src/repositories/channel.repository';
 import { CourseRepository } from '../../../repositories/course.repository';
+import { ModuleRepository } from '../../../repositories/module.repository';
+import { VideoRepository } from '../../../repositories/video.repository';
 
 @Injectable()
 export class StorageService {
@@ -16,6 +18,8 @@ export class StorageService {
     private readonly userRepository: UserRepository,
     private readonly channelRepository: ChannelRepository,
     private readonly courseRepository: CourseRepository,
+    private readonly moduleRepository: ModuleRepository,
+    private readonly videoRepository: VideoRepository,
   ) {}
 
   static getImagesDiskStorage() {
@@ -114,6 +118,36 @@ export class StorageService {
     }
   }
 
+  async deleteVideo(
+    reqUser: UserDto,
+    moduleId: number,
+    videoId: number,
+    filename: string,
+  ): Promise<void> {
+    const module = await this.moduleRepository.findOne({
+      where: { id: moduleId },
+      relations: ['course', 'course.channel', 'course.channel.user'],
+    });
+
+    if (module.course.channel.user.id !== reqUser.id) {
+      throw new HttpException('Ação não permitida!', HttpStatus.FORBIDDEN);
+    }
+
+    const video = await this.videoRepository.findOne({
+      where: { id: videoId },
+    });
+
+    if (video.video_url) {
+      StorageService.removeVideo({
+        userId: reqUser.id,
+        channelId: module.course.channel.id,
+        courseId: module.course.id,
+        clientFileUrl: video.video_url,
+        reqFileName: filename,
+      });
+    }
+  }
+
   private static removeImage(args: {
     userId: number;
     clientFileUrl: string;
@@ -122,6 +156,29 @@ export class StorageService {
     const cwd = process.cwd();
 
     const requestPath = `${cwd}/storage/${args.userId}/${args.reqFileName}`;
+    const clientPath = `${cwd}/storage/${args.clientFileUrl}`;
+
+    if (clientPath != requestPath) {
+      throw new HttpException('Ação não permitida!', HttpStatus.FORBIDDEN);
+    }
+
+    if (!fs.existsSync(requestPath)) {
+      throw new HttpException('Arquivo não encontrado!', HttpStatus.NOT_FOUND);
+    } else {
+      fs.unlinkSync(requestPath);
+    }
+  }
+
+  private static removeVideo(args: {
+    userId: number;
+    channelId: number;
+    courseId: number;
+    clientFileUrl: string;
+    reqFileName: string;
+  }): void {
+    const cwd = process.cwd();
+
+    const requestPath = `${cwd}/storage/${args.userId}/${args.channelId}/${args.courseId}/${args.reqFileName}`;
     const clientPath = `${cwd}/storage/${args.clientFileUrl}`;
 
     if (clientPath != requestPath) {
