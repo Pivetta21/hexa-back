@@ -70,7 +70,7 @@ export class ModulesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiNoContentResponse()
-  remove(@Param('id') id: number): Promise<boolean> {
+  remove(@Param('id') id: number): Promise<any> {
     return this.modulesService.remove(id);
   }
 }

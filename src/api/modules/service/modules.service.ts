@@ -51,14 +51,14 @@ export class ModulesService {
     return newModule;
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: number): Promise<any> {
     const result: DeleteResult = await this.moduleRepository.delete(id);
 
     if (result.affected == 0) {
       throw new HttpException('Recurso não encontrado.', HttpStatus.NOT_FOUND);
     }
 
-    return true;
+    return result;
   }
 
   private async findModuleById(id: number): Promise<ModuleDto> {

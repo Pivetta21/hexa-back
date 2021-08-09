@@ -41,12 +41,34 @@ export class StorageController {
     return Promise.resolve(file);
   }
 
+  @Post('videos')
+  @UseInterceptors(
+    FileInterceptor('file', StorageService.getVideosDiskStorage()),
+  )
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ type: FileDto })
+  uploadVideo(@UploadedFile() file: Express.Multer.File): Promise<FileDto> {
+    return Promise.resolve(file);
+  }
+
   @Get('images/:id/:filename')
   @ApiOkResponse()
   findImage(@Res() res, @Param() params: any): Promise<any> {
     return res.sendFile(
       StorageService.getFilePath(
         process.env.STORAGE_DIR + `/${params.id}/`,
+        params.filename,
+      ),
+    );
+  }
+
+  @Get('videos/:userId/:courseId/:videoId/:filename')
+  @ApiOkResponse()
+  findVideo(@Res() res, @Param() params: any): Promise<any> {
+    return res.sendFile(
+      StorageService.getFilePath(
+        `${process.env.STORAGE_DIR}/${params.userId}/${params.courseId}/${params.videoId}/`,
         params.filename,
       ),
     );

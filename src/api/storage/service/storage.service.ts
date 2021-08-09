@@ -36,6 +36,28 @@ export class StorageService {
     };
   }
 
+  static getVideosDiskStorage() {
+    return {
+      storage: diskStorage({
+        destination: process.env.STORAGE_DIR,
+        filename: (req, file, cb) => {
+          const { id } = req.user as any;
+          const { channelId, courseId } = req.query as any;
+
+          const filename: string = path
+            .parse(file.originalname)
+            .name.replace(/\s/g, '');
+          const extension: string = path.parse(file.originalname).ext;
+
+          cb(
+            null,
+            `${id}/${channelId}/${courseId}/${filename + uuidv4()}${extension}`,
+          );
+        },
+      }),
+    };
+  }
+
   static getFilePath(storageDir: string, filename: string): string {
     return path.join(process.cwd(), storageDir, filename);
   }
