@@ -23,7 +23,7 @@ export class Course {
   channel!: Channel;
 
   @OneToMany(() => Module, (module) => module.course)
-  modules!: Module[];
+  modules: Module[];
 
   @Column('varchar', { length: 255, nullable: false })
   name: string;

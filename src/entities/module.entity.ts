@@ -18,5 +18,5 @@ export class Module {
   name: string;
 
   @OneToMany(() => Video, (video) => video.module)
-  videos!: Video[];
+  videos: Video[];
 }

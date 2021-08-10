@@ -55,7 +55,7 @@ export class CoursesService {
   async findOne(id: number): Promise<CourseDto> {
     const course = await this.courseRepository.findOne({
       where: { id: id },
-      relations: ['channel'],
+      relations: ['channel', 'channel.user', 'modules', 'modules.videos'],
     });
 
     if (!course) {

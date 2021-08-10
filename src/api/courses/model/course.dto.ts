@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 
 import { ChannelDto } from '../../channels/model/channel.dto';
+import { ModuleDto } from '../../modules/model/module.dto';
 
 export class CourseDto {
   @IsInt()
@@ -19,6 +20,9 @@ export class CourseDto {
 
   @ApiProperty({ example: { id: 1 } })
   channel!: ChannelDto;
+
+  @ApiProperty({ required: false })
+  modules?: ModuleDto[];
 
   @IsString()
   @IsNotEmpty()

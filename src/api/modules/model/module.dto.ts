@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsString, Length } from 'class-validator';
 
 import { CourseDto } from '../../courses/model/course.dto';
+import { VideoDto } from '../../videos/model/video.dto';
 
 export class ModuleDto {
   @IsInt()
@@ -16,4 +17,7 @@ export class ModuleDto {
   @Length(5, 255)
   @ApiProperty({ example: 'The First Module' })
   name: string;
+
+  @ApiProperty({ required: false })
+  videos?: VideoDto[];
 }
