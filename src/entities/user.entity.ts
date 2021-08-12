@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ChannelToUser } from './channel-user.entity';
+import { CourseRegistration } from './course-registration.entity';
 
 @Entity()
 export class User {
@@ -27,5 +28,11 @@ export class User {
   isEmailValidated: boolean;
 
   @OneToMany(() => ChannelToUser, (channelToUser) => channelToUser.user)
-  channelToUsers!: ChannelToUser[];
+  channelToUsers: ChannelToUser[];
+
+  @OneToMany(
+    () => CourseRegistration,
+    (courseRegistration) => courseRegistration.user,
+  )
+  courseRegistrations: CourseRegistration[];
 }

@@ -7,6 +7,7 @@ import { ChannelUserModule } from './channel-user/channel-user.module';
 import { CoursesModule } from './courses/courses.module';
 import { ModulesModule } from './modules/modules.module';
 import { VideosModule } from './videos/videos.module';
+import { CourseRegistrationModule } from './course-registration/course-registration.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { VideosModule } from './videos/videos.module';
     CoursesModule,
     ModulesModule,
     VideosModule,
+    CourseRegistrationModule,
   ],
 })
 export class ApiModule {}

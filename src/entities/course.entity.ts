@@ -9,6 +9,7 @@ import {
 
 import { Channel } from './channel.entity';
 import { Module } from './module.entity';
+import { CourseRegistration } from './course-registration.entity';
 
 @Entity()
 export class Course {
@@ -42,4 +43,10 @@ export class Course {
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
   created_at: string;
+
+  @OneToMany(
+    () => CourseRegistration,
+    (courseRegistration) => courseRegistration.course,
+  )
+  courseRegistrations: CourseRegistration[];
 }
