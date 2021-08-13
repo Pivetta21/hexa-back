@@ -18,6 +18,7 @@ import { CourseRegistrationService } from '../service/course-registration.servic
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RegisterCourseDto } from '../model/register-course.dto';
 import { CourseRegistrationDto } from '../model/course-registration.dto';
+import { RateCourseDto } from '../model/rate-course.dto';
 
 @ApiTags('course-registration')
 @Controller('course-registration')
@@ -25,6 +26,22 @@ export class CourseRegistrationController {
   constructor(
     private readonly courseRegistrationService: CourseRegistrationService,
   ) {}
+
+  @Get('rate/:courseId')
+  @ApiOkResponse({ type: 'number' })
+  getCourseRate(@Param('courseId') courseId: number): Promise<number> {
+    return this.courseRegistrationService.getCourseRate(courseId);
+  }
+
+  @Post('rate')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ type: 'number' })
+  rateCourse(
+    @Body() rateCourseDto: RateCourseDto,
+  ): Promise<CourseRegistrationDto> {
+    return this.courseRegistrationService.rateCourse(rateCourseDto);
+  }
 
   @Get('courses/:userId')
   @UseGuards(JwtAuthGuard)
