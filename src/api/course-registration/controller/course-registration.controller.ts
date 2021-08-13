@@ -5,7 +5,15 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CourseRegistrationService } from '../service/course-registration.service';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RegisterCourseDto } from '../model/register-course.dto';
@@ -17,6 +25,16 @@ export class CourseRegistrationController {
   constructor(
     private readonly courseRegistrationService: CourseRegistrationService,
   ) {}
+
+  @Get('courses/:userId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: CourseRegistrationDto, isArray: true })
+  findUserCourses(
+    @Param('userId') userId: number,
+  ): Promise<CourseRegistrationDto[]> {
+    return this.courseRegistrationService.findUserCourses(userId);
+  }
 
   @Get('is-registered')
   @UseGuards(JwtAuthGuard)

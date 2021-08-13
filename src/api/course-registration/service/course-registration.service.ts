@@ -34,4 +34,13 @@ export class CourseRegistrationService {
 
     return this.courseRegistrationRepository.save(courseRegistration);
   }
+
+  findUserCourses(userId: number): Promise<CourseRegistrationDto[]> {
+    return this.courseRegistrationRepository.find({
+      where: {
+        user: { id: userId },
+      },
+      relations: ['course'],
+    });
+  }
 }
