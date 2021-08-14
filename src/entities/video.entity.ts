@@ -3,9 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Module } from './module.entity';
+import { VideoComments } from './video-comments.entity';
 
 @Entity()
 export class Video {
@@ -27,4 +29,7 @@ export class Video {
 
   @Column('varchar', { length: 255, nullable: false })
   video_url: string;
+
+  @OneToMany(() => VideoComments, (videoComment) => videoComment.video)
+  comments: VideoComments[];
 }

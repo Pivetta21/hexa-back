@@ -8,6 +8,7 @@ import { CoursesModule } from './courses/courses.module';
 import { ModulesModule } from './modules/modules.module';
 import { VideosModule } from './videos/videos.module';
 import { CourseRegistrationModule } from './course-registration/course-registration.module';
+import { VideoCommentsModule } from './video-comments/video-comments.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CourseRegistrationModule } from './course-registration/course-registrat
     ModulesModule,
     VideosModule,
     CourseRegistrationModule,
+    VideoCommentsModule,
   ],
 })
 export class ApiModule {}
