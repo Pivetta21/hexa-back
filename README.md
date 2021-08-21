@@ -39,3 +39,7 @@
   Para acessar o OpenAPI (Swagger) na sua máquina local acesse:
 
     localhost:8080/api
+
+<br />
+
+> ATENÇÃO! Link para o <a href="https://github.com/Pivetta21/hexa-front">repositório</a> do front-end.

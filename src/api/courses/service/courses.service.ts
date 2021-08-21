@@ -53,10 +53,27 @@ export class CoursesService {
   }
 
   async findOne(id: number): Promise<CourseDto> {
-    const course = await this.courseRepository.findOne({
-      where: { id: id },
-      relations: ['channel', 'channel.user', 'modules', 'modules.videos'],
-    });
+    const course = await this.courseRepository
+      .createQueryBuilder('course')
+      .innerJoinAndSelect(
+        'course.channel',
+        'channel',
+        'course.channelId = channel.id',
+      )
+      .innerJoinAndSelect('channel.user', 'user', 'channel.userId = user.id')
+      .leftJoinAndSelect(
+        'course.modules',
+        'modules',
+        'course.id = modules.courseId',
+      )
+      .leftJoinAndSelect(
+        'modules.videos',
+        'videos',
+        'modules.id = videos.moduleId',
+      )
+      .where('course.id = :courseId', { courseId: id })
+      .orderBy({ 'modules.id': 'ASC', 'videos.id': 'ASC' })
+      .getOne();
 
     if (!course) {
       throw new HttpException(
