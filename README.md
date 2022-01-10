@@ -29,6 +29,11 @@
     npm run migration:generate -n <migration_name>
 
 ## Outros
+  \
+  IMPORTANTE! No Linux antes de iniciar o docker, rode:
+  
+    mkdir storage
+    chown <your_user> ./storage
 
   \
   Para acessar o postgres do container na sua máquina local, utilize  Beekeeper Studio ou DBeaver com a seguinte url:

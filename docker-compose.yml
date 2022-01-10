@@ -12,6 +12,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
   api:
+    container_name: hexa_back_api
     build: 
       dockerfile: Dockerfile
       context: .
