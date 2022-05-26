@@ -1,5 +1,7 @@
 # Hexa Back-end
 
+  Hexa é um serviço de conteúdo onde usuários podem publicar e organizar cursos e, além disso, permite que usuários inscrevam-se em canais e se registrem em cursos.
+
 ## Utilizando o [Docker](https://www.docker.com/get-started)   
   \
   Para iniciar a API e o banco de dados, rode:
