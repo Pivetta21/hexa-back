@@ -2,6 +2,7 @@ version: "3.8"
 
 services: 
   postgres:
+    container_name: database
     image: postgres:12
     ports: 
       - 35000:5432
@@ -11,8 +12,10 @@ services:
       POSTGRES_DB: db 
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
   api:
-    container_name: hexa_back_api
+    container_name: api
     build: 
       dockerfile: Dockerfile
       context: .
@@ -33,10 +36,13 @@ services:
       - ./:/usr/src/app/
       - ./storage:/usr/src/app/storage
       - nodemodules:/usr/src/app/node_modules
-    links: 
-      - postgres
+    networks:
+      - app-network
     depends_on: 
       - postgres
+networks:
+  app-network:
+    driver: bridge
 volumes:
-  nodemodules: {}
-  pgdata: {}
+  pgdata: 
+  nodemodules: 
